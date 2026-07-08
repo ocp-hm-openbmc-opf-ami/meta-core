@@ -1,0 +1,223 @@
+From d15b85822b9d0698b5e9074f290e5fce7f4db743 Mon Sep 17 00:00:00 2001
+From: arjuncr <arjuncr@ami.com>
+Date: Sun, 22 Mar 2026 13:55:32 -0400
+Subject: [PATCH] Update Intel Espi Driver to Latest BKC
+
+---
+ drivers/soc/aspeed/aspeed-espi-oob.c   | 80 +++++++++++++++++++++++---
+ drivers/soc/aspeed/aspeed-espi-rtc.h   | 23 ++++++++
+ drivers/soc/aspeed/aspeed-espi-slave.c | 14 ++++-
+ 3 files changed, 105 insertions(+), 12 deletions(-)
+ create mode 100644 drivers/soc/aspeed/aspeed-espi-rtc.h
+
+diff --git a/drivers/soc/aspeed/aspeed-espi-oob.c b/drivers/soc/aspeed/aspeed-espi-oob.c
+index 7c3ca5afafd8..24be80f10360 100644
+--- a/drivers/soc/aspeed/aspeed-espi-oob.c
++++ b/drivers/soc/aspeed/aspeed-espi-oob.c
+@@ -11,6 +11,7 @@
+ 
+ #include "aspeed-espi-ctrl.h"
+ #include "aspeed-espi-oob.h"
++#include "aspeed-espi-rtc.h"
+ 
+ #define OOB_MDEV_NAME	"aspeed-espi-oob"
+ 
+@@ -19,6 +20,16 @@
+ 
+ #define OOB_DEFAULT_RX_PACKET_LEN	0x1000
+ 
++static void aspeed_espi_rtc_alloc(struct device *dev, struct aspeed_espi_oob *espi_oob)
++{
++#ifdef CONFIG_RTC_DRV_PCH_NVL
++	if (of_property_read_bool(dev->of_node, "intel,pch-nvl-rtc")) {
++		dev_info(dev, "Enabling RTC driver for pch-nvl-rtc\n");
++		pch_nvl_rtc_alloc(dev, espi_oob);
++	}
++#endif
++}
++
+ /*
+  * Descriptor-based RX DMA handling
+  */
+@@ -59,10 +70,15 @@ static long aspeed_espi_oob_dma_desc_get_rx(struct file *fp,
+ 	hdr->len_h = ESPI_LEN_HIGH(d->len);
+ 	hdr->len_l = ESPI_LEN_LOW(d->len);
+ 	memcpy(hdr + 1, espi_oob->dma.rx_virt + (PAGE_SIZE * sptr), pkt_len - sizeof(*hdr));
+-	if (copy_to_user((void __user *)ioc->pkt, pkt, pkt_len)) {
+-		rc = -EFAULT;
+-		goto free_n_out;
+-	}
++
++	if (fp) {
++		if (copy_to_user((void __user *)ioc->pkt, pkt, pkt_len)) {
++			rc = -EFAULT;
++			goto free_n_out;
++		}
++	} else
++		memcpy(ioc->pkt, pkt, pkt_len);
++
+ 
+ 	/* make current descriptor available again */
+ 	d->dirty = 0;
+@@ -192,10 +208,13 @@ static long aspeed_espi_oob_dma_desc_put_tx(struct file *fp,
+ 		return -ENOMEM;
+ 
+ 	hdr = (struct espi_comm_hdr *)pkt;
+-	if (copy_from_user(pkt, (void __user *)ioc->pkt, ioc->pkt_len)) {
+-		rc = -EFAULT;
+-		goto free_n_out;
+-	}
++	if (fp) {
++		if (copy_from_user(pkt, (void __user *)ioc->pkt, ioc->pkt_len)) {
++			rc = -EFAULT;
++			goto free_n_out;
++		}
++	} else
++		memcpy(pkt, ioc->pkt, ioc->pkt_len);
+ 
+ 	regmap_write(espi_ctrl->map, ASPEED_ESPI_OOB_TX_DMA_RD_PTR,
+ 		     ASPEED_ESPI_OOB_TX_DMA_RD_PTR_UPDATE);
+@@ -310,6 +329,47 @@ static long aspeed_espi_oob_ioctl(struct file *fp, unsigned int cmd, unsigned lo
+ 	return -ENOTTY;
+ }
+ 
++int aspeed_oob_rtc_read_time(struct aspeed_espi_oob *espi_oob,
++	struct espi_oob_msg *request_data, struct espi_oob_msg *response_data)
++{
++	if (!espi_oob || !request_data || !response_data)
++		return -EINVAL;
++
++	int rc;
++	struct file *dummy_fp = NULL;
++	struct aspeed_espi_ioc ioc_tx = {0}, ioc_rx = {0};
++
++	ioc_tx.pkt = (u8 *)request_data;
++	ioc_tx.pkt_len = ((request_data->len_h << 8) | request_data->len_l) + sizeof(*request_data);
++	ioc_rx.pkt = (u8 *)response_data;
++	ioc_rx.pkt_len = sizeof(struct espi_oob_msg) + 16;
++
++	if (mutex_trylock(&espi_oob->put_tx_mtx)) {
++		rc = aspeed_espi_oob_dma_desc_put_tx(dummy_fp, &ioc_tx, espi_oob);
++		if (rc) {
++			mutex_unlock(&espi_oob->put_tx_mtx);
++			return rc;
++		}
++		mutex_unlock(&espi_oob->put_tx_mtx);
++
++		dummy_fp = NULL;
++		if (!espi_oob->rx_ready) {
++			rc = wait_event_interruptible(espi_oob->wq, espi_oob->rx_ready);
++			if (rc == -ERESTARTSYS)
++				return -EINTR;
++		}
++		if (mutex_trylock(&espi_oob->get_rx_mtx)) {
++			rc = aspeed_espi_oob_dma_desc_get_rx(dummy_fp, &ioc_rx, espi_oob);
++			espi_oob->rx_ready = 0;
++			mutex_unlock(&espi_oob->get_rx_mtx);
++			return rc;
++		} else
++			return -EBUSY;
++
++	} else
++		return -EBUSY;
++}
++
+ void aspeed_espi_oob_event(u32 sts, struct aspeed_espi_oob *espi_oob)
+ {
+ 	unsigned long flags;
+@@ -418,7 +478,6 @@ static int aspeed_espi_oob_dma_alloc(struct device *dev, struct aspeed_espi_oob
+ 			return -ENOMEM;
+ 		}
+ 
+-		/* coverity[double_unlock : FALSE] */
+ 		dma->rx_desc = dmam_alloc_coherent(dev, sizeof(*dma->rx_desc) * dma->rx_desc_num,
+ 						   &dma->rx_desc_addr, GFP_KERNEL);
+ 		if (!dma->rx_desc) {
+@@ -478,6 +537,9 @@ void *aspeed_espi_oob_alloc(struct device *dev, struct aspeed_espi_ctrl *espi_ct
+ 	}
+ 
+ 	aspeed_espi_oob_enable(espi_oob);
++
++	// Register RTC driver if the device tree indicates its presence
++	aspeed_espi_rtc_alloc(dev, espi_oob);
+ 	return espi_oob;
+ }
+ 
+diff --git a/drivers/soc/aspeed/aspeed-espi-rtc.h b/drivers/soc/aspeed/aspeed-espi-rtc.h
+new file mode 100644
+index 000000000000..f59f8ad5fd24
+--- /dev/null
++++ b/drivers/soc/aspeed/aspeed-espi-rtc.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0+
++ *
++ * Copyright (C) 2025 Intel Corporation
++ */
++
++#ifndef ASPEED_ESPI_RTC_H
++#define ASPEED_ESPI_RTC_H
++
++#include <linux/device.h>
++#include <linux/rtc.h>
++#include <linux/aspeed-espi-ioc.h>
++#include <linux/miscdevice.h>
++#include "aspeed-espi-oob.h"
++
++int aspeed_oob_rtc_read_time(struct aspeed_espi_oob *espi_oob,
++			     struct espi_oob_msg *request_data,
++			     struct espi_oob_msg *response_data);
++
++#ifdef CONFIG_RTC_DRV_PCH_NVL
++int pch_nvl_rtc_alloc(struct device *dev, struct aspeed_espi_oob *espi_oob);
++#endif
++
++#endif /* ASPEED_ESPI_RTC_H */
+diff --git a/drivers/soc/aspeed/aspeed-espi-slave.c b/drivers/soc/aspeed/aspeed-espi-slave.c
+index 1ce1b614ab48..b8f92ef120ab 100644
+--- a/drivers/soc/aspeed/aspeed-espi-slave.c
++++ b/drivers/soc/aspeed/aspeed-espi-slave.c
+@@ -88,7 +88,7 @@ static void aspeed_espi_sys_event(struct aspeed_espi *priv)
+ 					  ASPEED_ESPI_SYSEVT_OOB_RST_ACK, 0);
+ 		dev_dbg(priv->dev, "SYSEVT_OOB_RST_WARN: acked\n");
+ 	}
+-	if (sts & ASPEED_ESPI_SYSEVT_PLTRSTN || priv->pltrstn == 'U') {
++	if (sts & ASPEED_ESPI_SYSEVT_PLTRSTN) {
+ 		spin_lock(&priv->pltrstn_lock);
+ 		priv->pltrstn = (evt & ASPEED_ESPI_SYSEVT_PLTRSTN) ? '1' : '0';
+ 		priv->pltrstn_in_avail = true;
+@@ -131,6 +131,14 @@ static void aspeed_espi_sys_event1(struct aspeed_espi *priv)
+ 	regmap_write(priv->map, ASPEED_ESPI_SYSEVT1_INT_STS, sts);
+ }
+ 
++static char aspeed_espi_read_pltrstn_state(struct aspeed_espi *priv)
++{
++	u32 evt;
++
++	regmap_read(priv->map, ASPEED_ESPI_SYSEVT, &evt);
++	return (evt & ASPEED_ESPI_SYSEVT_PLTRSTN) ? '1' : '0';
++}
++
+ static void aspeed_espi_boot_ack(struct aspeed_espi *priv)
+ {
+ 	u32 evt;
+@@ -192,7 +200,7 @@ static irqreturn_t aspeed_espi_irq(int irq, void *arg)
+ 	}
+ 	if (sts & ASPEED_ESPI_HW_RESET) {
+ 		spin_lock(&priv->pltrstn_lock);
+-		priv->pltrstn = 'U';
++		priv->pltrstn = aspeed_espi_read_pltrstn_state(priv);
+ 		priv->pltrstn_in_avail = true;
+ 		spin_unlock(&priv->pltrstn_lock);
+ 		wake_up_interruptible(&priv->pltrstn_waitq);
+@@ -455,7 +463,7 @@ static int aspeed_espi_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->smi_lock);
+ 	init_waitqueue_head(&priv->pltrstn_waitq);
+ 	init_waitqueue_head(&priv->smi_waitq);
+-	priv->pltrstn = 'U'; /* means it's not reported yet from master */
++	priv->pltrstn = aspeed_espi_read_pltrstn_state(priv);
+ 	priv->smi = 'U';
+ 
+ 	for_each_child_of_node(priv->dev->of_node, node) {
+-- 
+2.34.1
+

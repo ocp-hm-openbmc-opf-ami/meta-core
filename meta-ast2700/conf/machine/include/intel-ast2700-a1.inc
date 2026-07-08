@@ -1,4 +1,5 @@
 require conf/machine/include/ast2700-sdk.inc
+require conf/machine/include/ast2700-a1.inc
 require conf/machine/include/ast-ssp.inc
 require conf/machine/include/ast-tsp.inc
 require conf/machine/include/obmc-bsp-common.inc
@@ -7,6 +8,8 @@ require conf/machine/include/intel-pfr.inc
 # Overwrite flash layout
 
 #FLASH_SIZE = "131072"
+FLASH_CALIPTRA_SIZE:flash-131072 = "128"
+FLASH_BMCU_SIZE:flash-131072 = "896"
 FLASH_UBOOT_OFFSET:flash-131072 = "0"
 FLASH_UBOOT_ENV_OFFSET:flash-131072 = "4096"
 FLASH_KERNEL_OFFSET:flash-131072 = "4224"
@@ -14,6 +17,8 @@ FLASH_ROFS_OFFSET:flash-131072 = "15488"
 FLASH_RWFS_OFFSET:flash-131072 = "100352"
 
 # 256MB flash overrides (pfr-256)
+FLASH_CALIPTRA_SIZE:flash-262144 = "128"
+FLASH_BMCU_SIZE:flash-262144 = "896"
 FLASH_UBOOT_OFFSET:flash-262144 = "0"
 FLASH_UBOOT_ENV_OFFSET:flash-262144 = "4096"
 FLASH_KERNEL_OFFSET:flash-262144 = "4224"
@@ -35,13 +40,24 @@ PFR_SHA = "2"
 
 # CALIPTRA Settings
 CALIPTRA_FW_BINARY = "caliptra-fw.bin"
+# CALIPTRA Manifest
+CALIPTRA_MANIFEST_CONFIG ??= "ast2700a1-default-ecc-manifest.toml"
 
 # BootMCU Build Settings
-BOOTMCU_FW_BINARY = "ast2700-mcu-runtime.bin"
+# SoC First Mutable Code (FMC) image
+FMC_IMAGE_ENABLE = "1"
+BOOTMCU_FMC_BINARY = "ast2700-mcu-runtime.bin"
+ZEPHYR_BOARD_BOOTMCU ?= "ast2700_evb/ast2700_a1/bootmcu"
 
 # U-Boot Build Settings
 UBOOT_MACHINE = "evb-ast2700_defconfig"
 UBOOT_DEVICETREE = "ast2700-dcscm"
+
+# SSP Settings
+ZEPHYR_BOARD_SSP ?= "ast2700_evb/ast2700_a1/ssp_tsp"
+
+# TSP Settings
+ZEPHYR_BOARD_TSP ?= "ast2700_evb/ast2700_a1/tsp"
 
 # Kernel Build Settings
 KBUILD_DEFCONFIG = "aspeed_g7_defconfig"
@@ -65,3 +81,5 @@ VIRTUAL-RUNTIME_obmc-chassis-state-manager ?= "x86-power-control"
 EXTRA_IMAGEDEPENDS:append = " \
     aspeed-image-recoveryuart \
     "
+
+MACHINEOVERRIDES =. "intel-ast2700:"

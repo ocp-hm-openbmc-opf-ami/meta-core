@@ -19,15 +19,15 @@ Signed-off-by: poram srinivasa rao <poramx.srinivasa.rao@intel.com>
 
 Upstream-Status: Pending
 ---
- meson.build        |   6 +-
- update_manager.cpp | 510 ++++++++++++++++++++++++++++++++++++++++-
- update_manager.hpp |  44 ++++
+ bmc/meson.build        |   6 +-
+ bmc/update_manager.cpp | 510 ++++++++++++++++++++++++++++++++++++++++-
+ bmc/update_manager.hpp |  44 ++++
  3 files changed, 556 insertions(+), 4 deletions(-)
 
-diff --git a/meson.build b/meson.build
+diff --git a/bmc/meson.build b/bmc/meson.build
 index ec1f630..1a9484c 100644
---- a/meson.build
-+++ b/meson.build
+--- a/bmc/meson.build
++++ b/bmc/meson.build
 @@ -5,7 +5,7 @@ conf.set_quoted(
      'BMC_INVENTORY_INTERFACE',
      'xyz.openbmc_project.Inventory.Item.Bmc',
@@ -55,10 +55,10 @@ index ec1f630..1a9484c 100644
      ]
  endif
  
-diff --git a/update_manager.cpp b/update_manager.cpp
+diff --git a/bmc/update_manager.cpp b/bmc/update_manager.cpp
 index 922f2bc..c0f8e99 100644
---- a/update_manager.cpp
-+++ b/update_manager.cpp
+--- a/bmc/update_manager.cpp
++++ b/bmc/update_manager.cpp
 @@ -1,9 +1,13 @@
  #include "update_manager.hpp"
  
@@ -600,10 +600,10 @@ index 922f2bc..c0f8e99 100644
  
      return sdbusplus::message::object_path(objPath);
  }
-diff --git a/update_manager.hpp b/update_manager.hpp
+diff --git a/bmc/update_manager.hpp b/bmc/update_manager.hpp
 index caba541..c76364c 100644
---- a/update_manager.hpp
-+++ b/update_manager.hpp
+--- a/bmc/update_manager.hpp
++++ b/bmc/update_manager.hpp
 @@ -5,10 +5,40 @@
  #include <sdbusplus/async.hpp>
  #include <xyz/openbmc_project/Software/Update/server.hpp>

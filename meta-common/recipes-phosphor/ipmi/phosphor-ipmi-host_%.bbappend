@@ -27,6 +27,7 @@ RDEPENDS:${PN}:remove:intel-ast2600 = "clear-once"
 RRECOMMENDS:${PN}:remove = "phosphor-settings-manager "
 RDEPENDS:${PN}:remove = " phosphor-settings-manager "
 
+
 RRECOMMENDS:${PN}:append = " settings "
 RDEPENDS:${PN}:append = " settings "
 

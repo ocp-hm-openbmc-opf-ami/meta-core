@@ -4,7 +4,7 @@ DESCRIPTION = "logger tool with systemd support, used to add log to systemd jour
 
 SECTION = "base"
 
-LICENSE = "GPLv2+ & LGPLv2.1+ & BSD-3-Clause & BSD-4-Clause"
+LICENSE = "GPL-2.0-or-later & LGPL-2.1-or-later & BSD-3-Clause & BSD-4-Clause"
 
 LIC_FILES_CHKSUM = "file://README.licensing;md5=972a134f1e14b2b060e365df2fab0099 \
                     file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \

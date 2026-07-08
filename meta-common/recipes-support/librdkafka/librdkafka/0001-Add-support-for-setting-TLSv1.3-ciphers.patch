@@ -13,6 +13,7 @@ Verified that proper OpenSSL function for setting TLSv1.3 ciphersuites
 is called.
 
 Signed-off-by: Michal Orzel <michalx.orzel@intel.com>
+Upstream-Status: Pending
 ---
  src/rdkafka_conf.c |  9 +++++++++
  src/rdkafka_conf.h |  1 +

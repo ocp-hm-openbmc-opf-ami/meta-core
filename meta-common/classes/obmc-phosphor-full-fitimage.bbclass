@@ -579,10 +579,10 @@ do_image_fitimage_rootfs() {
     # touch the required files to minimize change
     touch image-kernel image-rofs image-rwfs
 
-    tar -h -cvf "${DEPLOY_DIR_IMAGE}/${PN}-image-update-${MACHINE}-${DATETIME}.tar" MANIFEST image-u-boot image-runtime image-kernel image-rofs image-rwfs
+    tar -h -cvf "${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}-image-update-${MACHINE}-${DATETIME}.tar" MANIFEST image-u-boot image-runtime image-kernel image-rofs image-rwfs
     # make a symlink
-    ln -sf "${PN}-image-update-${MACHINE}-${DATETIME}.tar" "${DEPLOY_DIR_IMAGE}/image-update-${MACHINE}"
-    ln -sf "${PN}-image-update-${MACHINE}-${DATETIME}.tar" "${DEPLOY_DIR_IMAGE}/OBMC-${@ do_get_version(d)}-oob.bin"
+    ln -sf "${IMAGE_BASENAME}-image-update-${MACHINE}-${DATETIME}.tar" "${DEPLOY_DIR_IMAGE}/image-update-${MACHINE}"
+    ln -sf "${IMAGE_BASENAME}-image-update-${MACHINE}-${DATETIME}.tar" "${DEPLOY_DIR_IMAGE}/OBMC-${@ do_get_version(d)}-oob.bin"
     ln -sf "image-update-${MACHINE}" "${DEPLOY_DIR_IMAGE}/image-update"
     ln -sf "image-update-${MACHINE}" "${DEPLOY_DIR_IMAGE}/OBMC-${@ do_get_version(d)}-inband.bin"
 }
@@ -594,3 +594,47 @@ do_image_fitimage_rootfs[depends] += " ${DEPS}"
 addtask do_image_fitimage_rootfs before do_generate_auto after do_image_complete
 addtask do_generate_phosphor_manifest before do_image_fitimage_rootfs after do_image_complete
 addtask do_generate_release_metainfo before do_generate_phosphor_manifest after do_image_complete
+
+CLEANFUNCS += "clean_deploy_fitimage_artifacts"
+python clean_deploy_fitimage_artifacts() {
+    import os, glob
+    deploy_dir = d.getVar('DEPLOY_DIR_IMAGE')
+    if not deploy_dir or not os.path.isdir(deploy_dir):
+        return
+
+    machine = d.getVar('MACHINE') or ''
+    image_basename = d.getVar('IMAGE_BASENAME') or d.getVar('PN') or ''
+
+    patterns = [
+        # fitImage-rootfs files and symlinks
+        'fitImage-rootfs-%s-*.bin' % machine,
+        'fitImage-rootfs-%s-*.its' % machine,
+        'fitImage-rootfs-%s.bin' % machine,
+        'fitImage-rootfs-%s.its' % machine,
+        # image-update tar files and symlinks
+        '%s-image-update-%s-*.tar' % (image_basename, machine),
+        '%s-image-update-full-%s-*.tar' % (image_basename, machine),
+        # OBMC oob/inband symlinks (non-ROM, non-pfr)
+        'OBMC-*-oob.bin',
+        'OBMC-*-inband.bin',
+        'OBMC-full-*-oob.bin',
+        'OBMC-full-*-inband.bin',
+    ]
+
+    for pat in patterns:
+        for f in glob.glob(os.path.join(deploy_dir, pat)):
+            try:
+                os.remove(f)
+                bb.note("Removed %s" % f)
+            except OSError:
+                pass
+
+    # Remove specific symlinks
+    for name in ['image-update-%s' % machine, 'image-update',
+                  'image-update-full-%s' % machine, 'image-update-full',
+                  'RELEASE']:
+        fpath = os.path.join(deploy_dir, name)
+        if os.path.lexists(fpath):
+            os.remove(fpath)
+            bb.note("Removed %s" % fpath)
+}

@@ -26,15 +26,15 @@ Signed-off-by: Ayushi Smriti <smriti.ayushi@intel.com>
 Signed-off-by: Hardik Panchal <hardikx.panchal@intel.com>
 Upstream-Status: Pending
 ---
- item_updater.cpp      |  3 +-
- pldm.hpp              | 21 +++++++++
+ bmc/item_updater.cpp      |  3 +-
+ bmc/pldm.hpp              | 21 +++++++++
  4 files changed, 118 insertions(+), 7 deletions(-)
  create mode 100644 bmc/pldm.hpp
 
-diff --git a/item_updater.cpp b/item_updater.cpp
+diff --git a/bmc/item_updater.cpp b/bmc/item_updater.cpp
 index df23a2e..e2a02ab 100644
---- a/item_updater.cpp
-+++ b/item_updater.cpp
+--- a/bmc/item_updater.cpp
++++ b/bmc/item_updater.cpp
 @@ -71,6 +71,7 @@ void ItemUpdater::createActivation(sdbusplus::message_t& msg)
  #if defined(HOST_BIOS_UPGRADE) || defined(PFR_UPDATE)
                          value == VersionPurpose::Host ||
@@ -52,11 +52,11 @@ index df23a2e..e2a02ab 100644
  {
  #ifndef PFR_UPDATE
      bool valid = true;
-diff --git a/pldm.hpp b/pldm.hpp
+diff --git a/bmc/pldm.hpp b/bmc/pldm.hpp
 new file mode 100644
 index 0000000..edbd6ae
 --- /dev/null
-+++ b/pldm.hpp
++++ b/bmc/pldm.hpp
 @@ -0,0 +1,21 @@
 +namespace pldm
 +{

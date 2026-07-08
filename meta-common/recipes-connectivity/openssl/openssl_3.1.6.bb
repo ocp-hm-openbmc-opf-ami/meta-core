@@ -56,12 +56,12 @@ DEPRECATED_CRYPTO_FLAGS ?= ""
 do_configure () {
 	# When we upgrade glibc but not uninative we see obtuse failures in openssl. Make
 	# the issue really clear that perl isn't functional due to symbol mismatch issues.
-	cat <<- EOF > ${UNPACKDIR}/perltest
+	cat <<- EOF > ${S}/perltest
 	#!/usr/bin/env perl
 	use POSIX;
 	EOF
-	chmod a+x ${UNPACKDIR}/perltest
-	${UNPACKDIR}/perltest
+	chmod a+x ${S}/perltest
+	${S}/perltest
 
 	os=${HOST_OS}
 	case $os in

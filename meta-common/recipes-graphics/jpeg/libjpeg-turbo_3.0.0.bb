@@ -24,7 +24,7 @@ RCONFLICTS:${PN} += "jpeg"
 
 inherit cmake pkgconfig
 
-export NASMENV = "--reproducible --debug-prefix-map=${UNPACKDIR}=/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR}"
+export NASMENV = "--reproducible --debug-prefix-map=${S}=/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR}"
 
 # Add nasm-native dependency consistently for all build arches is hard
 EXTRA_OECMAKE:append:class-native = " -DWITH_SIMD=False"

@@ -26,15 +26,15 @@ Signed-off-by: Hardik Panchal <hardikx.panchal@intel.com>
 Signed-off-by: Kushal Molabanti <kushalx.molabanti@intel.com>
 Upstream-Status: Pending
 ---
- smm_runtime_update.hpp | 902 +++++++++++++++++++++++++++++++++++++
+ bmc/smm_runtime_update.hpp | 902 +++++++++++++++++++++++++++++++++++++
  1 file changed, 902 insertions(+)
  create mode 100644 bmc/smm_runtime_update.hpp
 
-diff --git a/smm_runtime_update.hpp b/smm_runtime_update.hpp
+diff --git a/bmc/smm_runtime_update.hpp b/bmc/smm_runtime_update.hpp
 new file mode 100644
 index 0000000..6d695ec
 --- /dev/null
-+++ b/smm_runtime_update.hpp
++++ b/bmc/smm_runtime_update.hpp
 @@ -0,0 +1,902 @@
 +#include <phosphor-logging/elog-errors.hpp>
 +#include <xyz/openbmc_project/Software/Image/error.hpp>

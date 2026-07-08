@@ -28,10 +28,10 @@ Upstream-Status: Pending
  activation.cpp | 22 ++++++++++++++++++++--
  1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/activation.cpp b/activation.cpp
+diff --git a/bmc/activation.cpp b/bmc/activation.cpp
 index 2966b2f..a098784 100644
---- a/activation.cpp
-+++ b/activation.cpp
+--- a/bmc/activation.cpp
++++ b/bmc/activation.cpp
 @@ -81,12 +81,16 @@ void Activation::unsubscribeFromSystemdSignals()
  auto Activation::activation(Activations value) -> Activations
  {

@@ -9,13 +9,13 @@ Change-Id: I81c3185e9c4c2ee907feeb53620faa22723c04d4
 
 Upstream-Status: Pending
 ---
- ubi/flash.cpp | 9 ++++++---
+ bmc/ubi/flash.cpp | 9 ++++++---
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/ubi/flash.cpp b/ubi/flash.cpp
 index 15c5492..cb09c9b 100644
---- a/ubi/flash.cpp
-+++ b/ubi/flash.cpp
+--- a/bmc/ubi/flash.cpp
++++ b/bmc/ubi/flash.cpp
 @@ -16,10 +16,13 @@ void Activation::flashWrite()
  {
      auto method = bus.new_method_call(SYSTEMD_BUSNAME, SYSTEMD_PATH,
@@ -40,7 +40,7 @@ index 15c5492..cb09c9b 100644
 +    auto rwServiceFile = "obmc-flash-bmc-ubirw@" + versionId + ".service";
      auto roServiceFile = "obmc-flash-bmc-ubiro@" + versionId + ".service";
      auto flashId = parent.versions.find(versionId)->second->path();
-     auto ubootVarsServiceFile =
+     auto ubootVarsServiceFile = "obmc-flash-bmc-updateubootvars@" + flashId +
 -- 
 2.25.1
 

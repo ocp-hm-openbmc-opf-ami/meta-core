@@ -25,6 +25,6 @@ DEPENDS += " \
     "
 
 SRC_URI:append = " \
-          file://0001-Remove-Wnull-dereference-flag-to-fix-boost-warnings.patch \
+		  file://0001-Remove-Wnull-dereference-flag-to-fix-boost-warnings.patch \
 		  file://0002-Fix-for-2700dcscm-build-error.patch \
                   "

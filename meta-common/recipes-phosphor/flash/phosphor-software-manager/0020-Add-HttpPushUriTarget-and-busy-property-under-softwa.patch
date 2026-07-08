@@ -10,28 +10,24 @@ under xyz.openbmc_project.Software.BMC.Updater.
  item_updater.hpp | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/item_updater.hpp b/item_updater.hpp
+diff --git a/bmc/item_updater.hpp b/bmc/item_updater.hpp
 index c691272..5e4c22b 100644
---- a/item_updater.hpp
-+++ b/item_updater.hpp
-@@ -10,6 +10,7 @@
- #include <xyz/openbmc_project/Common/FactoryReset/server.hpp>
+--- a/bmc/item_updater.hpp
++++ b/bmc/item_updater.hpp
+@@ -14,6 +14,7 @@
  #include <xyz/openbmc_project/Control/FieldMode/server.hpp>
+ #include <xyz/openbmc_project/Software/MinimumVersion/server.hpp>
  #include <xyz/openbmc_project/Software/ApplyOptions/server.hpp>
 +#include <xyz/openbmc_project/Software/FirmwareUpdateTarget/server.hpp>
- 
+
  #include <string>
  #include <vector>
-@@ -26,7 +27,8 @@ using ItemUpdaterInherit = sdbusplus::server::object_t<
+@@ -32,7 +33,8 @@
      sdbusplus::server::xyz::openbmc_project::control::FieldMode,
      sdbusplus::server::xyz::openbmc_project::association::Definitions,
      sdbusplus::server::xyz::openbmc_project::collection::DeleteAll,
 -    sdbusplus::xyz::openbmc_project::Software::server::ApplyOptions>;
 +    sdbusplus::xyz::openbmc_project::Software::server::ApplyOptions,
 +    sdbusplus::xyz::openbmc_project::Software::server::FirmwareUpdateTarget>;
- 
- namespace MatchRules = sdbusplus::bus::match::rules;
- using VersionClass = phosphor::software::manager::Version;
--- 
-2.34.1
-
+ using MinimumVersionInherit = sdbusplus::server::object_t<
+     sdbusplus::server::xyz::openbmc_project::software::MinimumVersion>;

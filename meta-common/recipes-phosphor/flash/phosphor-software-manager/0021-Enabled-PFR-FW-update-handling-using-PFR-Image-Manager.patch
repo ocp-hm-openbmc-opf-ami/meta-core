@@ -5,18 +5,18 @@ Subject: [PATCH] Enabled PFR FW update handling using PFR Image Manager
 
 Signed-off-by: Kirubagharan A S <kirubagharanas@ami.com>
 ---
- image_manager_main.cpp |   4 +
- meson.build            |  13 +-
- pfr_image_manager.cpp  | 420 +++++++++++++++++++++++++++++++++++++
- pfr_image_manager.hpp  | 178 ++++++++++++++++
+ bmc/image_manager_main.cpp |   4 +
+ bmc/meson.build            |  13 +-
+ bmc/pfr_image_manager.cpp  | 420 +++++++++++++++++++++++++++++++++++++
+ bmc/pfr_image_manager.hpp  | 178 ++++++++++++++++
  4 files changed, 611 insertions(+), 4 deletions(-)
  create mode 100644 bmc/pfr_image_manager.cpp
  create mode 100644 bmc/pfr_image_manager.hpp
 
-diff --git a/image_manager_main.cpp b/image_manager_main.cpp
+diff --git a/bmc/image_manager_main.cpp b/bmc/image_manager_main.cpp
 index 961f245..2fb0f8d 100644
---- a/image_manager_main.cpp
-+++ b/image_manager_main.cpp
+--- a/bmc/image_manager_main.cpp
++++ b/bmc/image_manager_main.cpp
 @@ -1,6 +1,10 @@
  #include "config.h"
  
@@ -28,10 +28,10 @@ index 961f245..2fb0f8d 100644
  #include "watch.hpp"
  
  #include <phosphor-logging/lg2.hpp>
-diff --git a/meson.build b/meson.build
+diff --git a/bmc/meson.build b/bmc/meson.build
 index 36a5b99..56ff084 100644
---- a/meson.build
-+++ b/meson.build
+--- a/bmc/meson.build
++++ b/bmc/meson.build
 @@ -5,7 +5,7 @@ conf.set_quoted(
      'BMC_INVENTORY_INTERFACE',
      'xyz.openbmc_project.Inventory.Item.Bmc',
@@ -72,11 +72,11 @@ index 36a5b99..56ff084 100644
      install: true,
      install_dir: get_option('libexecdir') / 'phosphor-code-mgmt',
  )
-diff --git a/pfr_image_manager.cpp b/pfr_image_manager.cpp
+diff --git a/bmc/pfr_image_manager.cpp b/bmc/pfr_image_manager.cpp
 new file mode 100644
 index 0000000..eff659e
 --- /dev/null
-+++ b/pfr_image_manager.cpp
++++ b/bmc/pfr_image_manager.cpp
 @@ -0,0 +1,420 @@
 +#include "config.h"
 +#include "pfr_image_manager.hpp"
@@ -498,11 +498,11 @@ index 0000000..eff659e
 +} // namespace software
 +} // namespace phosphor
 +
-diff --git a/pfr_image_manager.hpp b/pfr_image_manager.hpp
+diff --git a/bmc/pfr_image_manager.hpp b/bmc/pfr_image_manager.hpp
 new file mode 100644
 index 0000000..32abbe0
 --- /dev/null
-+++ b/pfr_image_manager.hpp
++++ b/bmc/pfr_image_manager.hpp
 @@ -0,0 +1,178 @@
 +#pragma once
 +#include "version.hpp"

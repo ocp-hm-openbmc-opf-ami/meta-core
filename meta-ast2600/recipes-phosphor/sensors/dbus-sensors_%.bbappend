@@ -9,5 +9,3 @@ SRC_URI_INTEL += " \
                "
 
 SRC_URI:append = "${@bb.utils.contains('BBFILE_COLLECTIONS', 'meta-ami', '',SRC_URI_INTEL, d)}"
-
-

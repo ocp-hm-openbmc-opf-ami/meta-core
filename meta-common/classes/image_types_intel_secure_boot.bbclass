@@ -204,3 +204,13 @@ python() {
                 'do_generate_auto', d)
 }
 
+CLEANFUNCS += "clean_deploy_secboot_image"
+python clean_deploy_secboot_image() {
+    import shutil, os
+    for dirname in ['SECBOOT_IMAGES_DIR', 'OTP_IMAGE_DIR']:
+        d_path = d.getVar(dirname)
+        if d_path and os.path.exists(d_path):
+            shutil.rmtree(d_path)
+            bb.note("Removed %s: %s" % (dirname, d_path))
+}
+

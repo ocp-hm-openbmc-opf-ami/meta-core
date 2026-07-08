@@ -11,13 +11,13 @@ Signed-off-by: Jennifer Lee <jennifer1.lee@intel.com>
 Change-Id: I3e9cf1ffc3f5350d4649d32d3d3837991322a65b
 Upstream-Status: Pending
 ---
- watch.cpp | 5 +++--
+ bmc/watch.cpp | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/watch.cpp b/watch.cpp
 index e46b8aa..eee1bc3 100644
---- a/watch.cpp
-+++ b/watch.cpp
+--- a/bmc/watch.cpp
++++ b/bmc/watch.cpp
 @@ -46,7 +46,7 @@ Watch::Watch(sd_event* loop, std::function<int(std::string&)> imageCallback) :
                                   std::strerror(error));
      }

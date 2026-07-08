@@ -2,8 +2,8 @@ FILESEXTRAPATHS:append := "${THISDIR}/${PN}:"
 
 # Todo: Commented out the patch to avoid build failure
 # SRC_URI += " \
-#    file://0001-Force-nbdkit-to-send-PATCH-as-upload-method.patch \
-#   "
+#     file://0001-Force-nbdkit-to-send-PATCH-as-upload-method.patch \
+#     "
 
 do_install:append() {
     rm -rf ${D}/usr/lib/nbdkit/filters

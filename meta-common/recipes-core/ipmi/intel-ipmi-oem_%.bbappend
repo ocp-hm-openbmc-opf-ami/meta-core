@@ -6,7 +6,7 @@ EXTRA_OECMAKE += "-DUSING_ENTITY_MANAGER_DECORATORS=OFF"
 # The URI is required for the autobump script but keep it commented
 # to not override the upstream value
 # SRC_URI = "git://github.com/openbmc/intel-ipmi-oem.git;branch=master;protocol=https"
-#SRCREV = "77a44298a726b20e595ee596ce0018e00493ef7e"
+# SRCREV = "77a44298a726b20e595ee596ce0018e00493ef7e"
 
 inherit pkgconfig
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
@@ -17,13 +17,13 @@ INTEL_SRC_URI += " \
         file://0008-Add-missing-include.patch \
         "
 
-# Telemetry Features:
+# # Telemetry Features:
 INTEL_SRC_URI += " \
-        file://telemetry/0001-Skip-PMT-during-exposing-IPMI-sensors.patch \
-        "
+         file://telemetry/0001-Skip-PMT-during-exposing-IPMI-sensors.patch \
+         "
 
 SRC_URI:append = "${@bb.utils.contains('BBFILE_COLLECTIONS', 'meta-ami', '',INTEL_SRC_URI, d)}"
-# OOB BIOS Features:
+#OOB BIOS Features:
 SRC_URI += " \
         file://oob-bios/0001-fix-in-oob-bios.patch \
 	"

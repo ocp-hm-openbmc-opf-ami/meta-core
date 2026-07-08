@@ -1,26 +1,36 @@
-From 72c66fc8c380a62e6b80d515ef3e0a3281132bca Mon Sep 17 00:00:00 2001
-From: Eddyhan <eddyhan@ami.com>
-Date: Mon, 27 Jun 2022 12:10:54 +0800
-Subject: [PATCH] Add libspdm.pc.in
+From c5b032199e56e3bc24d2bc556bce3bd56be17e57 Mon Sep 17 00:00:00 2001
+From: leon_lin <leonlin@ami.com>
+Date: Fri, 23 Jan 2026 09:09:12 +0800
+Subject: [PATCH] Update libspdm.pc.in
 
+---
+ libspdm.pc.in | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/libspdm.pc.in b/libspdm.pc.in
-new file mode 100755
-index 00000000..3c909a79
---- /dev/null
+index a14f0adb..5bce32ae 100644
+--- a/libspdm.pc.in
 +++ b/libspdm.pc.in
-@@ -0,0 +1,11 @@
+@@ -1,12 +1,12 @@
+-prefix=@CMAKE_INSTALL_PREFIX@
+-exec_prefix=@CMAKE_INSTALL_PREFIX@
+-libdir=${exec_prefix}/lib
+-includedir=${prefix}/include/lib@LIB_NAME@
 +prefix="@CMAKE_INSTALL_PREFIX@"
 +exec_prefix="${prefix}"
 +libdir="${prefix}/@CMAKE_INSTALL_LIBDIR@"
 +includedir="${prefix}/include/"
-+
-+Name: @PROJECT_NAME@
-+Description: @PROJECT_DESCRIPTION@
-+Version: @PROJECT_VERSION@
+ 
+ Name: @CMAKE_PROJECT_NAME@
+ Description: @CMAKE_PROJECT_DESCRIPTION@
+ Version: @CMAKE_PROJECT_VERSION@
+ 
+-Requires:
+-Cflags: -I${includedir} -I${includedir}/include
+-Libs: -L${libdir} -l@LIB_NAME@ -l@LIB_NAME@_platform -l@LIB_NAME@_crypto @CRYPTO_DEPS@
 +Requires: @PKGCONF_REQ_PUB@
 +Cflags: -I"${includedir}" -I"${includedir}/libspdm/include" -I"${includedir}/libspdm/include/hal" -I"${includedir}/libspdm/os_stub" -I"${includedir}libspdm/os_stub/spdm_crypt_ext_lib" -I"${includedir}/libspdm/os_stub/include"
-+Libs: -L"${libdir}" -l@PROJECT_NAME@
++Libs: -L"${libdir}" -l@CMAKE_PROJECT_NAME@ @CRYPTO_DEPS@
 -- 
 2.34.1
 

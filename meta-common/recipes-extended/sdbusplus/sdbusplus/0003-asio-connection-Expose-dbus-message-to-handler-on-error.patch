@@ -11,21 +11,46 @@ message enables this function to show the real issue in its response.
 
 Signed-off-by: ramadevi <ramadevip@ami.com>
 ---
- include/sdbusplus/asio/connection.hpp | 2 ++
- 1 file changed, 2 insertions(+)
+ include/sdbusplus/asio/connection.hpp | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/include/sdbusplus/asio/connection.hpp b/include/sdbusplus/asio/connection.hpp
-index 66868d7..77f7f7f 100644
+index 5cb6818..66868d7 100644
 --- a/include/sdbusplus/asio/connection.hpp
 +++ b/include/sdbusplus/asio/connection.hpp
-@@ -161,6 +161,8 @@ class connection : public sdbusplus::bus_t
-                 // successful to allow the user to implement their own handling
-                 if constexpr (returnWithMsg)
-                 {
-+                    // Forward the D-Bus message even on error so handlers can
-+                    // inspect the underlying reply details.
-                     auto response = std::tuple_cat(std::make_tuple(ec),
-                                                    std::forward_as_tuple(r),
-                                                    std::move(responseData));
+@@ -124,11 +124,18 @@ class connection : public sdbusplus::bus_t
+         using FunctionTuple = boost::callable_traits::args_t<MessageHandler>;
+         using FunctionTupleType = utility::decay_tuple_t<FunctionTuple>;
+         FunctionTupleType responseData;
+-        if (ec)
++
++        std::get<0>(responseData) = ec;
++
++        if constexpr (utility::details::args_to_skip<FunctionTupleType>() == 2)
+         {
+-            std::get<0>(responseData) = ec;
++            // Forward the message so handlers can inspect get_error() on D-Bus
++            // error replies. ec is derived from message.get_errno(), so the
++            // message is valid even when ec is non-zero.
++            std::get<1>(responseData) = r;
+         }
+-        else
++
++        if (!ec)
+         {
+             try
+             {
+@@ -137,7 +144,9 @@ class connection : public sdbusplus::bus_t
+             }
+             catch (const std::exception&)
+             {
+-                // Set error code if not already set
++                // This message waas received with no error, however we failed
++                // to parse the message; force error-code to let the consumer
++                // know of the failure in the handler.
+                 std::get<0>(responseData) =
+                     boost::system::errc::make_error_code(
+                         boost::system::errc::invalid_argument);
 -- 
 2.43.0
+

@@ -1,5 +1,5 @@
 COMPATIBLE_MACHINE = "intel-ast2600"
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 # Temporary pin to fix sync build. TODO: Need to update to new u-boot.
 SRCREV = "ed55c4e7c3c4abacecaadda149656129f8b22965"
@@ -53,7 +53,7 @@ SRC_URI:append:intel-ast2600 = " \
     "
 
 # CVE-2020-10648 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2020-10648:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2020-10648:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-image-Correct-comment-for-fit_conf_get_node.patch \
     file://0008-image-Load-the-correct-configuration-in-fit_check_si.patch \
@@ -62,51 +62,51 @@ SRC_URI:append:intel-ast2600 = " \
     "
 
 # CVE-2019-11059 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2019-11059:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2019-11059:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-Fix-ext4-block-group-descriptor-sizing.patch \
     "
 
 # CVE-2019-11690 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2019-11690:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2019-11690:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-lib-uuid-Fix-unseeded-PRNG-on-RANDOM_UUID-y.patch \
     "
 
 # CVE-2019-13105 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2019-13105:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2019-13105:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-fs-ext4-cache-extent-data.patch \
     file://0002-CVE-2019-13105-ext4-fix-double-free-in-ext4_cache_re.patch \
     "
 
 # CVE-2019-13104 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2019-13104:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2019-13104:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-CVE-2019-13104-ext4-check-for-underflow-in-ext4fs_re.patch \
     "
 
 # CVE-2019-13106 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2019-13106:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2019-13106:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-CVE-2019-13106-ext4-fix-out-of-bounds-memset.patch \
     "
 
 # CVE-2021-27097 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2021-27097:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2021-27097:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-image-Adjust-the-workings-of-fit_check_format.patch \
     file://0002-image-Add-an-option-to-do-a-full-check-of-the-FIT.patch \
     "
 
 # CVE-2021-27138 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2021-27138:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2021-27138:"
 SRC_URI:append:intel-ast2600 = " \
     file://0001-image-Check-for-unit-addresses-in-FITs.patch \
     "
 
 # CVE-2022-34835 vulnerability fix
-FILESEXTRAPATHS:prepend:= "${THISDIR}/files/CVE-2022-34835:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/CVE-2022-34835:"
 SRC_URI:append:intel-ast2600 = " \
     file://001-fix-stack-buffer-overflow-vuln-in-i2c-md.patch \
     "
@@ -122,7 +122,7 @@ U_BOOT_RELEASE_FEATURE = " \
 
 SRC_URI:append:intel-ast2600 = "${@bb.utils.contains('IMAGE_FSTYPES', 'intel-pfr', PFR_SRC_URI, '', d)}"
 SRC_URI:append:intel-ast2600 = "${@bb.utils.contains('IMAGE_FSTYPES', 'intel-secboot', PFR_SRC_URI, '', d)}"
-SRC_URI:append:intel-ast2600 = "${@bb.utils.contains('EXTRA_IMAGE_FEATURES', 'debug-tweaks', '', U_BOOT_RELEASE_FEATURE, d)}"
+SRC_URI:append:intel-ast2600 = "${@bb.utils.contains('EXTRA_IMAGE_FEATURES', 'allow-root-login', '', U_BOOT_RELEASE_FEATURE, d)}"
 
 do_install:append () {
     install -m 0644 ${UNPACKDIR}/fw_env.config ${D}${sysconfdir}/fw_env.config
