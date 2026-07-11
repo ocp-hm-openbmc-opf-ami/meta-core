@@ -43,7 +43,6 @@ IMAGE_INSTALL:append = " \
         kernel-panic-check \
         hsbp-manager \
         security-registers-check \
-        nv-sync \
         security-manager \
         host-misc-comm-manager \
         telemetry \
