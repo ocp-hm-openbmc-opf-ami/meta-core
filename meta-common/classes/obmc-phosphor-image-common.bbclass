@@ -33,7 +33,7 @@ IMAGE_INSTALL:append = " \
         dbus-broker \
         intel-ipmi-oem \
         smbios-mdr \
-        system-watchdog \
+        hw-watchdog \
         callback-manager \
         preinit-mounts \
         mtd-utils-ubifs \
