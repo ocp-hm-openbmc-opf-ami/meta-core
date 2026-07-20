@@ -9,13 +9,13 @@ Signed-off-by: Chalapathi <chalapathix.venkataramashetty@intel.com>
 
 Upstream-Status: Pending
 ---
- item_updater.cpp | 7 ++-----
+ bmc/item_updater.cpp | 7 ++-----
  1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/item_updater.cpp b/item_updater.cpp
 index 5613a49..e69e564 100644
---- a/item_updater.cpp
-+++ b/item_updater.cpp
+--- a/bmc/item_updater.cpp
++++ b/bmc/item_updater.cpp
 @@ -204,7 +204,8 @@ void ItemUpdater::processBMCImage()
          if (0 ==
              iter.path().native().compare(0, BMC_RO_PREFIX_LEN, BMC_ROFS_PREFIX))

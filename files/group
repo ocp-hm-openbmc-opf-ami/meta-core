@@ -10,3 +10,6 @@ systemd-timesync:x:204:
 systemd-coredump:x:205:
 systemd-bus-proxy:x:206:
 systemd-resolve:x:207:
+tee:x:210
+teepriv:x:211:
+teesuppl:x:212:

@@ -1,4 +1,4 @@
-From 7c661c4d73b6ae58ec6cdfbafce080006be2ae7e Mon Sep 17 00:00:00 2001
+From 5364f36dc9f4f6f1496601626a9e093c8caad017 Mon Sep 17 00:00:00 2001
 From: Jennifer Lee <jennifer1.lee@intel.com>
 Date: Thu, 14 Feb 2019 14:54:45 -0800
 Subject: [PATCH] Modify the ID of software image updater object on DBus to
@@ -15,13 +15,13 @@ Change-Id: I16aba4804ae1bc2e8784320f91c0419fb8b23c35
 
 Upstream-Status: Pending
 ---
- image_manager.cpp | 6 ++++++
+ bmc/image_manager.cpp | 6 ++++++
  1 file changed, 6 insertions(+)
 
 diff --git a/image_manager.cpp b/image_manager.cpp
-index eb4fec4..9b66961 100644
---- a/image_manager.cpp
-+++ b/image_manager.cpp
+index 4fc4f8e..8c66db0 100644
+--- a/bmc/image_manager.cpp
++++ b/bmc/image_manager.cpp
 @@ -9,6 +9,7 @@
  #include <stdlib.h>
  #include <sys/stat.h>
@@ -29,8 +29,8 @@ index eb4fec4..9b66961 100644
 +#include <time.h>
  #include <unistd.h>
  
- #include <elog-errors.hpp>
-@@ -196,6 +197,11 @@ int Manager::processImage(const std::string& tarFilePath)
+ #include <phosphor-logging/elog-errors.hpp>
+@@ -199,6 +200,11 @@ int Manager::processImage(const std::string& tarFilePath)
      auto salt = std::to_string(randomGen());
      auto id = Version::getId(version + salt);
  
@@ -42,3 +42,6 @@ index eb4fec4..9b66961 100644
      fs::path imageDirPath = std::string{IMG_UPLOAD_DIR};
      imageDirPath /= id;
  
+-- 
+2.25.1
+

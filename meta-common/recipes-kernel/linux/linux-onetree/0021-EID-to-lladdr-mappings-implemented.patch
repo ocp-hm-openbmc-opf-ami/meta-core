@@ -1,19 +1,19 @@
-From 2ee53f2b0969adf6be8ac6977da8cfe2f8fcd196 Mon Sep 17 00:00:00 2001
-From: vamsikrishnareddyp <vamsikrishnareddyp@ami.com>
-Date: Sat, 20 Sep 2025 07:56:27 +0000
-Subject: [PATCH] EID-to-lladdr-mappings-implemented
+From 3b98fceb5d395470f0d03301068dbd094b5c4cfd Mon Sep 17 00:00:00 2001
+From: ShengHsiuHuang <ShengHsiuHuang@ami.com>
+Date: Mon, 30 Mar 2026 23:46:21 +0800
+Subject: [PATCH 4/5] EID to lladdr mappings implemented
 
 ---
  include/net/mctp.h |   2 +
  net/mctp/af_mctp.c | 177 +++++++++++++++++++++++++++++++++++++++++++++
- net/mctp/route.c   |  33 +++++++++
- 3 files changed, 212 insertions(+)
+ net/mctp/route.c   |  39 ++++++++++
+ 3 files changed, 218 insertions(+)
 
 diff --git a/include/net/mctp.h b/include/net/mctp.h
-index fcc65a822a34..fdcf9def8420 100644
+index c3207ce98f07..6705a0c848f4 100644
 --- a/include/net/mctp.h
 +++ b/include/net/mctp.h
-@@ -290,6 +290,8 @@ int mctp_neigh_lookup(struct mctp_dev *dev, mctp_eid_t eid,
+@@ -329,6 +329,8 @@ int mctp_neigh_lookup(struct mctp_dev *dev, mctp_eid_t eid,
  		      void *ret_hwaddr);
  void mctp_neigh_remove_dev(struct mctp_dev *mdev);
  
@@ -23,7 +23,7 @@ index fcc65a822a34..fdcf9def8420 100644
  void mctp_routes_exit(void);
  
 diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
-index 8032cfba22d1..3bd71cf54be1 100644
+index b99ba14f39d2..ecb0073c5cb2 100644
 --- a/net/mctp/af_mctp.c
 +++ b/net/mctp/af_mctp.c
 @@ -20,6 +20,177 @@
@@ -204,10 +204,10 @@ index 8032cfba22d1..3bd71cf54be1 100644
  /* socket implementation */
  
  static void mctp_sk_expire_keys(struct timer_list *timer);
-@@ -445,6 +616,12 @@ static int mctp_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 		return mctp_ioctl_alloctag(msk, arg);
- 	case SIOCMCTPDROPTAG:
- 		return mctp_ioctl_droptag(msk, arg);
+@@ -603,6 +774,12 @@ static int mctp_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 	case SIOCMCTPDROPTAG2:
+ 		tagv2 = cmd == SIOCMCTPDROPTAG2;
+ 		return mctp_ioctl_droptag(msk, tagv2, arg);
 +	case SIOCMCTPSETPIDMAP:
 +		return mctp_ioctl_setpidmap(msk, arg);
 +	case SIOCMCTPDELPIDMAP:
@@ -218,11 +218,11 @@ index 8032cfba22d1..3bd71cf54be1 100644
  
  	return -EINVAL;
 diff --git a/net/mctp/route.c b/net/mctp/route.c
-index a6cd72b5e039..da12b5bc3fe1 100644
+index dea5cf422e1b..1a77ec2e1dd2 100644
 --- a/net/mctp/route.c
 +++ b/net/mctp/route.c
-@@ -945,6 +945,39 @@ int mctp_local_output(struct sock *sk, struct mctp_route *rt,
- 		saddr = rt->dev->addrs[0];
+@@ -1126,6 +1126,39 @@ int mctp_local_output(struct sock *sk, struct mctp_dst *dst,
+ 		saddr = dst->dev->addrs[0];
  		rc = 0;
  	}
 +
@@ -230,12 +230,12 @@ index a6cd72b5e039..da12b5bc3fe1 100644
 +    char daddr_buf[MAX_ADDR_LEN];
 +    bool has_pid = false;
 +
-+    if (cb->halen > 0)
++    if (dst->halen > 0)
 +    {
-+        memcpy(daddr_buf, cb->haddr, cb->halen);
++        memcpy(daddr_buf, dst->haddr, dst->halen);
 +        has_pid = true;
 +    }
-+    else if (mctp_neigh_lookup(rt->dev, daddr, daddr_buf) == 0)
++    else if (mctp_neigh_lookup(dst->dev, daddr, daddr_buf) == 0)
 +    {
 +        has_pid = true;
 +    }
@@ -245,9 +245,9 @@ index a6cd72b5e039..da12b5bc3fe1 100644
 +        mctp_eid_t mapped_eid;
 +        if (mctp_pid_map_lookup(daddr_buf, &mapped_eid) == 0)
 +        {
-+            for (int i = 0; i < rt->dev->num_addrs; i++)
++            for (int i = 0; i < dst->dev->num_addrs; i++)
 +            {
-+                if (rt->dev->addrs[i] == mapped_eid)
++                if (dst->dev->addrs[i] == mapped_eid)
 +                {
 +                    //printk("Using mapped src EID 0x%02x for PID\n", mapped_eid);
 +                    saddr = mapped_eid;
@@ -258,9 +258,22 @@ index a6cd72b5e039..da12b5bc3fe1 100644
 +    }
 +    //ends here
 +
- 	spin_unlock_irqrestore(&rt->dev->addrs_lock, flags);
+ 	spin_unlock_irqrestore(&dst->dev->addrs_lock, flags);
+ 	netid = READ_ONCE(dst->dev->net);
  
+@@ -1372,6 +1405,12 @@ static int mctp_pkttype_receive(struct sk_buff *skb, struct net_device *dev,
  	if (rc)
+ 		goto err_drop;
+ 
++    if (dst.output == mctp_dst_output) {
++        // Handle packets destined for other devices
++        skb->dev = dst.dev->dev;
++        cb->ifindex = dst.dev->dev->ifindex;
++    }
++
+ 	dst.output(&dst, skb);
+ 	mctp_dst_release(&dst);
+ 	mctp_dev_put(mdev);
 -- 
-2.43.0
+2.34.1
 

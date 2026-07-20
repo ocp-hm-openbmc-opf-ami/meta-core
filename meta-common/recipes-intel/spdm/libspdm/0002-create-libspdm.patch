@@ -1,211 +1,382 @@
-From a04e130879ea9d6a5e1ecfdfbc3620cc62b073ca Mon Sep 17 00:00:00 2001
-From: eddyhan <eddyhan@ami.com>
-Date: Mon, 15 Jul 2024 20:33:53 +0800
-Subject: [PATCH 2/2] create libspdm
+From f478fb699fbc72dc80d3dbf16898aa0958631549 Mon Sep 17 00:00:00 2001
+From: leon_lin <leonlin@ami.com>
+Date: Thu, 29 Jan 2026 12:40:01 +0800
+Subject: [PATCH] Export compiled objects
 
+---
+ library/spdm_common_lib/CMakeLists.txt               | 5 ++++-
+ library/spdm_crypt_lib/CMakeLists.txt                | 5 ++++-
+ library/spdm_requester_lib/CMakeLists.txt            | 5 ++++-
+ library/spdm_responder_lib/CMakeLists.txt            | 5 ++++-
+ library/spdm_secured_message_lib/CMakeLists.txt      | 5 ++++-
+ library/spdm_transport_mctp_lib/CMakeLists.txt       | 5 ++++-
+ library/spdm_transport_pcidoe_lib/CMakeLists.txt     | 5 ++++-
+ library/spdm_transport_tcp_lib/CMakeLists.txt        | 3 +++
+ os_stub/cryptlib_openssl/CMakeLists.txt              | 5 ++++-
+ os_stub/debuglib/CMakeLists.txt                      | 7 ++++++-
+ os_stub/debuglib_null/CMakeLists.txt                 | 7 ++++++-
+ os_stub/malloclib/CMakeLists.txt                     | 3 +++
+ os_stub/memlib/CMakeLists.txt                        | 3 +++
+ os_stub/openssllib/CMakeLists.txt                    | 5 ++++-
+ os_stub/platform_lib/CMakeLists.txt                  | 5 ++++-
+ os_stub/rnglib/CMakeLists.txt                        | 2 ++
+ os_stub/spdm_crypt_ext_lib/CMakeLists.txt            | 5 ++++-
+ os_stub/spdm_device_secret_lib_sample/CMakeLists.txt | 5 ++++-
+ 18 files changed, 71 insertions(+), 14 deletions(-)
 
 diff --git a/library/spdm_common_lib/CMakeLists.txt b/library/spdm_common_lib/CMakeLists.txt
-index a42fc703cd..1629db7528 100644
+index db3e44c4..79eef706 100644
 --- a/library/spdm_common_lib/CMakeLists.txt
 +++ b/library/spdm_common_lib/CMakeLists.txt
-@@ -13,3 +13,5 @@ SET(src_spdm_common_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_common_lib STATIC ${src_spdm_common_lib})
+ add_library(spdm_common_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_common_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_common_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -16,4 +19,4 @@ target_sources(spdm_common_lib
+         libspdm_com_opaque_data.c
+         libspdm_com_support.c
+         libspdm_com_msg_log.c
+-)
+\ No newline at end of file
++)
 diff --git a/library/spdm_crypt_lib/CMakeLists.txt b/library/spdm_crypt_lib/CMakeLists.txt
-index 6ef0511f47..69b442e0b3 100644
+index cebd1fed..a46bf52b 100644
 --- a/library/spdm_crypt_lib/CMakeLists.txt
 +++ b/library/spdm_crypt_lib/CMakeLists.txt
-@@ -27,3 +27,5 @@ SET(src_spdm_crypt_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_crypt_lib STATIC ${src_spdm_crypt_lib})
+ add_library(spdm_crypt_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_crypt_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_crypt_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -30,4 +33,4 @@ target_sources(spdm_crypt_lib
+         fips/libspdm_selftest_ffdh.c
+         fips/libspdm_selftest_ecdsa.c
+         fips/libspdm_selftest_eddsa.c
+-)
+\ No newline at end of file
++)
 diff --git a/library/spdm_requester_lib/CMakeLists.txt b/library/spdm_requester_lib/CMakeLists.txt
-index 31d4e3940b..4fce750435 100644
+index b0131ccb..724ccef7 100644
 --- a/library/spdm_requester_lib/CMakeLists.txt
 +++ b/library/spdm_requester_lib/CMakeLists.txt
-@@ -32,3 +32,5 @@ SET(src_spdm_requester_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_requester_lib STATIC ${src_spdm_requester_lib})
+ add_library(spdm_requester_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_requester_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_requester_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -44,4 +47,4 @@ target_sources(spdm_requester_lib
+         libspdm_req_get_measurement_extension_log.c
+         libspdm_req_get_key_pair_info.c
+         libspdm_req_set_key_pair_info.c
+-)
+\ No newline at end of file
++)
 diff --git a/library/spdm_responder_lib/CMakeLists.txt b/library/spdm_responder_lib/CMakeLists.txt
-index ffefcc1d0e..50fb5627df 100644
+index 066ca296..f57ebb7a 100644
 --- a/library/spdm_responder_lib/CMakeLists.txt
 +++ b/library/spdm_responder_lib/CMakeLists.txt
-@@ -36,4 +36,6 @@ SET(src_spdm_responder_lib
-     libspdm_rsp_chunk_get.c
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
--ADD_LIBRARY(spdm_responder_lib STATIC ${src_spdm_responder_lib})
-\ No newline at end of file
-+ADD_LIBRARY(spdm_responder_lib STATIC ${src_spdm_responder_lib})
+ add_library(spdm_responder_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_responder_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_responder_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -47,4 +50,4 @@ target_sources(spdm_responder_lib
+         libspdm_rsp_measurement_extension_log.c
+         libspdm_rsp_get_key_pair_info.c
+         libspdm_rsp_set_key_pair_info_ack.c
+-)
 \ No newline at end of file
++)
 diff --git a/library/spdm_secured_message_lib/CMakeLists.txt b/library/spdm_secured_message_lib/CMakeLists.txt
-index 0fa7cdd3a3..88b8b5ed61 100644
+index 77ab662b..ebbafa36 100644
 --- a/library/spdm_secured_message_lib/CMakeLists.txt
 +++ b/library/spdm_secured_message_lib/CMakeLists.txt
-@@ -10,3 +10,5 @@ SET(src_spdm_secured_message_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_secured_message_lib STATIC ${src_spdm_secured_message_lib})
+ add_library(spdm_secured_message_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_secured_message_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_secured_message_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -13,4 +16,4 @@ target_sources(spdm_secured_message_lib
+         libspdm_secmes_encode_decode.c
+         libspdm_secmes_key_exchange.c
+         libspdm_secmes_session.c
+-)
+\ No newline at end of file
++)
 diff --git a/library/spdm_transport_mctp_lib/CMakeLists.txt b/library/spdm_transport_mctp_lib/CMakeLists.txt
-index da6a29d313..e9e3ecaff4 100644
+index 9b2eddec..99819bf3 100644
 --- a/library/spdm_transport_mctp_lib/CMakeLists.txt
 +++ b/library/spdm_transport_mctp_lib/CMakeLists.txt
-@@ -8,3 +8,5 @@ SET(src_spdm_transport_mctp_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_transport_mctp_lib STATIC ${src_spdm_transport_mctp_lib})
+ add_library(spdm_transport_mctp_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_transport_mctp_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_transport_mctp_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -11,4 +14,4 @@ target_sources(spdm_transport_mctp_lib
+     PRIVATE
+         libspdm_mctp_common.c
+         libspdm_mctp_mctp.c
+-)
+\ No newline at end of file
++)
 diff --git a/library/spdm_transport_pcidoe_lib/CMakeLists.txt b/library/spdm_transport_pcidoe_lib/CMakeLists.txt
-index af7121f261..74690be198 100644
+index 74ab1a55..95a16b8f 100644
 --- a/library/spdm_transport_pcidoe_lib/CMakeLists.txt
 +++ b/library/spdm_transport_pcidoe_lib/CMakeLists.txt
-@@ -8,3 +8,5 @@ SET(src_spdm_transport_pcidoe_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_transport_pcidoe_lib STATIC ${src_spdm_transport_pcidoe_lib})
+ add_library(spdm_transport_pcidoe_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_transport_pcidoe_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -11,4 +14,4 @@ target_sources(spdm_transport_pcidoe_lib
+     PRIVATE
+         libspdm_doe_common.c
+         libspdm_doe_pcidoe.c
+-)
+\ No newline at end of file
++)
+diff --git a/library/spdm_transport_tcp_lib/CMakeLists.txt b/library/spdm_transport_tcp_lib/CMakeLists.txt
+index a55ae366..afa7e203 100644
+--- a/library/spdm_transport_tcp_lib/CMakeLists.txt
++++ b/library/spdm_transport_tcp_lib/CMakeLists.txt
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
+ 
+ add_library(spdm_transport_tcp_lib STATIC "")
+ 
++list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_transport_tcp_lib>)
++set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_transport_tcp_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
 diff --git a/os_stub/cryptlib_openssl/CMakeLists.txt b/os_stub/cryptlib_openssl/CMakeLists.txt
-old mode 100644
-new mode 100755
-index 1d246712f3..71856b788b
+index cad55aea..f15a558d 100644
 --- a/os_stub/cryptlib_openssl/CMakeLists.txt
 +++ b/os_stub/cryptlib_openssl/CMakeLists.txt
-@@ -21,6 +21,8 @@ elseif(ARCH STREQUAL "riscv32")
-     ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_RISCV32)
- elseif(ARCH STREQUAL "riscv64")
-     ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_RISCV64)
-+elseif (ARCH STREQUAL "arm")
-+    ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_ARM)
- else()
-     MESSAGE(FATAL_ERROR "Unknown ARCH")
- endif()
-@@ -57,3 +59,5 @@ endif()
+@@ -44,6 +44,9 @@ target_sources(cryptlib_openssl
  
- ADD_LIBRARY(cryptlib_openssl STATIC ${src_cryptlib_openssl})
- TARGET_COMPILE_OPTIONS(cryptlib_openssl PRIVATE ${OPENSSL_FLAGS})
+ target_compile_options(cryptlib_openssl PRIVATE ${OPENSSL_FLAGS})
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:cryptlib_openssl>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ if(ARCH STREQUAL "x64")
+     target_compile_options(cryptlib_openssl PRIVATE -DLIBSPDM_CPU_X64)
+ elseif(ARCH STREQUAL "ia32")
+@@ -58,4 +61,4 @@ elseif((ARCH STREQUAL "arm") OR (ARCH STREQUAL "aarch64"))
+     target_compile_options(cryptlib_openssl PRIVATE -DLIBSPDM_CPU_ARM)
+ else()
+     message(FATAL_ERROR "Unknown ARCH")
+-endif()
+\ No newline at end of file
++endif()
 diff --git a/os_stub/debuglib/CMakeLists.txt b/os_stub/debuglib/CMakeLists.txt
-index 80fbde1415..4f9d6ffd7a 100644
+index 5426edb8..a023b07c 100644
 --- a/os_stub/debuglib/CMakeLists.txt
 +++ b/os_stub/debuglib/CMakeLists.txt
-@@ -8,3 +8,7 @@ SET(src_debuglib
- )
+@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(debuglib STATIC ${src_debuglib})
+ add_library(debuglib STATIC "")
+ 
 +if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-+list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:debuglib>)
-+set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++    list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:debuglib>)
++    set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
 +endif()
++
+ target_include_directories(debuglib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -11,4 +16,4 @@ target_include_directories(debuglib
+ target_sources(debuglib
+     PRIVATE
+         debuglib.c
+-)
+\ No newline at end of file
++)
 diff --git a/os_stub/debuglib_null/CMakeLists.txt b/os_stub/debuglib_null/CMakeLists.txt
-index cc23febf96..0ac6db8526 100644
+index fec1c8e4..7baa537b 100644
 --- a/os_stub/debuglib_null/CMakeLists.txt
 +++ b/os_stub/debuglib_null/CMakeLists.txt
-@@ -8,3 +8,7 @@ SET(src_debuglib_null
- )
+@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(debuglib_null STATIC ${src_debuglib_null})
+ add_library(debuglib_null STATIC "")
+ 
 +if(CMAKE_BUILD_TYPE STREQUAL "Release")
-+list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:debuglib_null>)
-+set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++    list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:debuglib_null>)
++    set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
 +endif()
++
+ target_include_directories(debuglib_null
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -11,4 +16,4 @@ target_include_directories(debuglib_null
+ target_sources(debuglib_null
+     PRIVATE
+         debuglib.c
+-)
+\ No newline at end of file
++)
 diff --git a/os_stub/malloclib/CMakeLists.txt b/os_stub/malloclib/CMakeLists.txt
-index 35d8582908..d4226ea2eb 100644
+index b179b198..0978de85 100644
 --- a/os_stub/malloclib/CMakeLists.txt
 +++ b/os_stub/malloclib/CMakeLists.txt
-@@ -8,3 +8,5 @@ SET(src_malloclib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(malloclib STATIC ${src_malloclib})
+ add_library(malloclib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:malloclib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(malloclib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
 diff --git a/os_stub/memlib/CMakeLists.txt b/os_stub/memlib/CMakeLists.txt
-index 7632b2e726..1064916a35 100644
+index 30a233cc..be1f8807 100644
 --- a/os_stub/memlib/CMakeLists.txt
 +++ b/os_stub/memlib/CMakeLists.txt
-@@ -11,3 +11,5 @@ SET(src_memlib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(memlib STATIC ${src_memlib})
+ add_library(memlib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:memlib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(memlib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
 diff --git a/os_stub/openssllib/CMakeLists.txt b/os_stub/openssllib/CMakeLists.txt
-index bd57bfb254..c0c76231cd 100644
+index b6dbcbc4..50b90f0c 100644
 --- a/os_stub/openssllib/CMakeLists.txt
 +++ b/os_stub/openssllib/CMakeLists.txt
-@@ -22,6 +22,8 @@ elseif(ARCH STREQUAL "riscv32")
-     ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_RISCV32)
- elseif(ARCH STREQUAL "riscv64")
-     ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_RISCV64)
-+elseif (ARCH STREQUAL "arm")
-+    ADD_COMPILE_OPTIONS(-DLIBSPDM_CPU_ARM)
- else()
-     MESSAGE(FATAL_ERROR "Unknown ARCH")
- endif()
-@@ -754,3 +756,5 @@ if ((ARCH STREQUAL "arm") OR (ARCH STREQUAL "aarch64"))
- endif()
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(openssllib STATIC ${src_openssllib})
+ add_library(openssllib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:openssllib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_compile_options(openssllib PRIVATE -DL_ENDIAN -DOPENSSL_SMALL_FOOTPRINT -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -DOPENSSL_SYS_UEFI=1 -DOPENSSL_API_COMPAT=0x10101000 ${OPENSSL_FLAGS})
+ 
+ if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND (ARCH STREQUAL "x64" OR ARCH STREQUAL "ia32"))
+@@ -840,4 +843,4 @@ target_sources(openssllib
+         rand_pool.c
+         ossl_store.c
+         timer_wrapper.c
+-)
 \ No newline at end of file
++)
 diff --git a/os_stub/platform_lib/CMakeLists.txt b/os_stub/platform_lib/CMakeLists.txt
-index 880e9396a6..ddf72c6489 100644
+index 0277762f..ed8ae506 100644
 --- a/os_stub/platform_lib/CMakeLists.txt
 +++ b/os_stub/platform_lib/CMakeLists.txt
-@@ -21,3 +21,5 @@ SET(src_platform_lib
- endif()
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(platform_lib STATIC ${src_platform_lib})
+ add_library(platform_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:platform_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(platform_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -26,4 +29,4 @@ else()
+         time_sample.c
+         watchdog.c
+     )
+-endif()
+\ No newline at end of file
++endif()
 diff --git a/os_stub/rnglib/CMakeLists.txt b/os_stub/rnglib/CMakeLists.txt
-old mode 100644
-new mode 100755
-index a053d71428..6a4b1bd576
+index 8c416203..621e96f2 100644
 --- a/os_stub/rnglib/CMakeLists.txt
 +++ b/os_stub/rnglib/CMakeLists.txt
-@@ -20,3 +20,5 @@ SET(src_rnglib
- endif()
+@@ -20,6 +20,8 @@ endif()
  
- ADD_LIBRARY(rnglib STATIC ${src_rnglib})
-+list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:rnglib>)
-+set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
+ if (NOT src_rnglib STREQUAL "")
+     add_library(rnglib STATIC "")
++    list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:rnglib>)
++    set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
+ 
+     target_include_directories(rnglib
+         PRIVATE
 diff --git a/os_stub/spdm_crypt_ext_lib/CMakeLists.txt b/os_stub/spdm_crypt_ext_lib/CMakeLists.txt
-index 825ddd3646..30424b1be4 100644
+index b8bb1ca0..628316c0 100644
 --- a/os_stub/spdm_crypt_ext_lib/CMakeLists.txt
 +++ b/os_stub/spdm_crypt_ext_lib/CMakeLists.txt
-@@ -9,3 +9,5 @@ SET(src_spdm_crypt_ext_lib
- )
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_crypt_ext_lib STATIC ${src_spdm_crypt_ext_lib})
+ add_library(spdm_crypt_ext_lib STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_crypt_ext_lib>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
++
+ target_include_directories(spdm_crypt_ext_lib
+     PRIVATE
+         ${LIBSPDM_DIR}/include
+@@ -11,4 +14,4 @@ target_include_directories(spdm_crypt_ext_lib
+ target_sources(spdm_crypt_ext_lib
+     PRIVATE
+         spdm_crypt_ext.c
+-)
+\ No newline at end of file
++)
 diff --git a/os_stub/spdm_device_secret_lib_sample/CMakeLists.txt b/os_stub/spdm_device_secret_lib_sample/CMakeLists.txt
-index 0900a58a7e..5ac61ab188 100644
+index 187fd960..78223c1c 100644
 --- a/os_stub/spdm_device_secret_lib_sample/CMakeLists.txt
 +++ b/os_stub/spdm_device_secret_lib_sample/CMakeLists.txt
-@@ -16,3 +16,6 @@ if ((ARCH STREQUAL "arm") OR (ARCH STREQUAL "aarch64"))
- endif()
+@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
  
- ADD_LIBRARY(spdm_device_secret_lib_sample STATIC ${src_spdm_device_secret_lib_sample})
+ add_library(spdm_device_secret_lib_sample STATIC "")
+ 
 +list(APPEND SPDM_OBJECTS $<TARGET_OBJECTS:spdm_device_secret_lib_sample>)
 +set(SPDM_OBJECTS ${SPDM_OBJECTS} PARENT_SCOPE)
 +
+ target_include_directories(spdm_device_secret_lib_sample
+     PRIVATE
+         ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+@@ -30,4 +33,4 @@ target_sources(spdm_device_secret_lib_sample
+ 
+ if ((ARCH STREQUAL "arm") OR (ARCH STREQUAL "aarch64"))
+     target_compile_options(spdm_device_secret_lib_sample PRIVATE -DLIBSPDM_CPU_ARM)
+-endif()
+\ No newline at end of file
++endif()
 -- 
 2.34.1
 

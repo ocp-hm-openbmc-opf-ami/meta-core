@@ -16,13 +16,13 @@ Change-Id: I6b049916a3edcb48f9d4ebe0d4715b94214b4feb
 Signed-off-by: Vernon Mauery <vernon.mauery@intel.com>
 Upstream-Status: Pending
 ---
- watch.cpp | 9 +++++++++
+ bmc/watch.cpp | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/watch.cpp b/watch.cpp
 index d6c09a946fd0..5d70edbf52b4 100644
---- a/watch.cpp
-+++ b/watch.cpp
+--- a/bmc/watch.cpp
++++ b/bmc/watch.cpp
 @@ -106,6 +106,12 @@ int Watch::callback(sd_event_source* /* s */, int fd, uint32_t revents,
              {
                  error("Error ({RC}) processing image {IMAGE}", "RC", rc,

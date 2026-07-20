@@ -62,7 +62,7 @@ EXTRA_OEMESON += "${@bb.utils.contains('EXTRA_IMAGE_FEATURES', 'validation-unsec
 
 do_install:append() {
     svc="xyz.openbmc_project.intrusionsensor.service"
-    srcf="${WORKDIR}/intrusionsensor-depend-on-networkd.conf"
+    srcf="${UNPACKDIR}/intrusionsensor-depend-on-networkd.conf"
     dstf="${D}/etc/systemd/system/${svc}.d/10-depend-on-networkd.conf"
     mkdir -p "${D}/etc/systemd/system/${svc}.d"
     install "${srcf}" "${dstf}"
@@ -78,3 +78,4 @@ do_install:append() {
 #mkdir -p "${D}/etc/systemd/system/${svc}.d"
 #install "${srcf}" "${dstf}"
 }
+

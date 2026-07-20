@@ -6,14 +6,15 @@ Subject: [PATCH] hw/arm/aspeed: Add an intel-ast2600 machine type
 Signed-off-by: Wludzik, Jozef <jozef.wludzik@intel.com>
 Upstream-Status: Pending
 ---
- hw/arm/aspeed.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ hw/arm/aspeed.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
 diff --git a/hw/arm/aspeed.c b/hw/arm/aspeed.c
-index 514dca85..be9e1455 100644
+index fcb1a7cd..be9e1455 100644
 --- a/hw/arm/aspeed.c
 +++ b/hw/arm/aspeed.c
-@@ -126,6 +126,10 @@ struct AspeedMachineState {
+@@ -178,6 +178,10 @@
+ /* AST2600 evb hardware value */
  #define AST2600_EVB_HW_STRAP1 0x000000C0
  #define AST2600_EVB_HW_STRAP2 0x00000003
  
@@ -21,11 +22,36 @@ index 514dca85..be9e1455 100644
 +#define INTEL_AST2600_HW_STRAP1 0x00000000
 +#define INTEL_AST2600_HW_STRAP2 0x00000040
 +
- /* Tacoma hardware value */
- #define TACOMA_BMC_HW_STRAP1  0x00000000
- #define TACOMA_BMC_HW_STRAP2  0x00000040
-@@ -670,6 +674,25 @@ static void aspeed_machine_intel_ast2500_class_init(ObjectClass *oc, void *data)
-         aspeed_soc_num_cpus(amc->soc_name);
+ #ifdef TARGET_AARCH64
+ /* AST2700 evb hardware value */
+ /* SCU HW Strap1 */
+@@ -553,6 +557,24 @@ static void ast2500_evb_i2c_init(AspeedMachineState *bmc)
+                      TYPE_TMP105, 0x4d);
+ }
+ 
++static void intel_ast2600_i2c_init(AspeedMachineState *bmc)
++{
++    AspeedSoCState *soc = bmc->soc;
++    DeviceState *dev;
++
++    dev = DEVICE(i2c_slave_create_simple(aspeed_i2c_get_bus(&soc->i2c, 6), "tmp421", 0x4d));
++    object_property_set_int(OBJECT(dev), "temperature0", 50000, &error_abort);
++    /* The s2600wf expects a TMP75 but a TMP105 is compatible */
++    dev = DEVICE(i2c_slave_create_simple(aspeed_i2c_get_bus(&soc->i2c, 6), "tmp105", 0x48));
++    object_property_set_int(OBJECT(dev), "temperature", 50000, &error_abort);
++    dev = DEVICE(i2c_slave_create_simple(aspeed_i2c_get_bus(&soc->i2c, 6), "tmp105", 0x49));
++    object_property_set_int(OBJECT(dev), "temperature", 50000, &error_abort);
++    dev = DEVICE(i2c_slave_create_simple(aspeed_i2c_get_bus(&soc->i2c, 6), "tmp105", 0x4a));
++    object_property_set_int(OBJECT(dev), "temperature", 50000, &error_abort);
++    dev = DEVICE(i2c_slave_create_simple(aspeed_i2c_get_bus(&soc->i2c, 6), "tmp105", 0x4b));
++    object_property_set_int(OBJECT(dev), "temperature", 50000, &error_abort);
++}
++
+ static void ast2600_evb_i2c_init(AspeedMachineState *bmc)
+ {
+     AspeedSoCState *soc = bmc->soc;
+@@ -1440,6 +1462,25 @@ static void aspeed_machine_ast2600_evb_class_init(ObjectClass *oc, void *data)
+     aspeed_machine_ast2600_class_emmc_init(oc);
  };
  
 +static void aspeed_machine_intel_ast2600_class_init(ObjectClass *oc, void *data)
@@ -41,25 +67,24 @@ index 514dca85..be9e1455 100644
 +    amc->spi_model = "n25q512a";
 +    amc->num_cs    = 1;
 +    amc->macs_mask  = ASPEED_MAC1_ON | ASPEED_MAC2_ON | ASPEED_MAC3_ON;
-+    amc->i2c_init  = intel_ast2500_i2c_init;
++    amc->i2c_init  = intel_ast2600_i2c_init;
 +    mc->default_ram_size = 1 * GiB;
-+    mc->default_cpus = mc->min_cpus = mc->max_cpus =
-+        aspeed_soc_num_cpus(amc->soc_name);
++    aspeed_machine_class_init_cpus_defaults(mc);
 +};
 +
- static void aspeed_machine_romulus_class_init(ObjectClass *oc, void *data)
+ static void aspeed_machine_g220a_class_init(ObjectClass *oc, void *data)
  {
      MachineClass *mc = MACHINE_CLASS(oc);
-@@ -789,6 +812,10 @@ static const TypeInfo aspeed_machine_types[] = {
-         .name          = MACHINE_TYPE_NAME("intel-ast2500"),
+@@ -1788,6 +1829,10 @@ static const TypeInfo aspeed_machine_types[] = {
+         .name          = MACHINE_TYPE_NAME("ast2600-evb"),
          .parent        = TYPE_ASPEED_MACHINE,
-         .class_init    = aspeed_machine_intel_ast2500_class_init,
+         .class_init    = aspeed_machine_ast2600_evb_class_init,
 +    }, {
 +        .name          = MACHINE_TYPE_NAME("intel-ast2600"),
 +        .parent        = TYPE_ASPEED_MACHINE,
 +        .class_init    = aspeed_machine_intel_ast2600_class_init,
      }, {
-         .name          = MACHINE_TYPE_NAME("romulus-bmc"),
+         .name          = MACHINE_TYPE_NAME("yosemitev2-bmc"),
          .parent        = TYPE_ASPEED_MACHINE,
 -- 
 2.16.6

@@ -1,9 +1,4 @@
-From f10008171880e289171e1d16ce2cb0e5c883db61 Mon Sep 17 00:00:00 2001
-From: Jason Messer <jasonm@ami.com>
-Date: Tue, 23 Jan 2024 01:08:16 +0000
-Subject: [PATCH] Recreating Intel patch 0001-PFR-images-support-in-phosphor-software-manager.patch
-
-From 50204e98ab7199bd4e168868efe5e26e1fe94b91 Mon Sep 17 00:00:00 2001
+From 45b34744ce6b97982aa57994019ef11d8fcd5796 Mon Sep 17 00:00:00 2001
 From: Hardik Panchal <hardikx.panchal@intel.com>
 Date: Mon, 14 Nov 2022 12:47:22 +0000
 Subject: [PATCH] PFR images support in phosphor-software-manager
@@ -183,23 +178,21 @@ Signed-off-by: Vernon Mauery <vernon.mauery@intel.com>
 Signed-off-by: Hardik Panchal <hardikx.panchal@intel.com>
 Upstream-Status: Pending
 ---
- dbus_helpers.hpp      |  31 +++++
- item_updater.cpp      |   7 +-
- meson.build           |   8 +-
- meson.options         |   2 +
- pfr_image_manager.cpp | 305 ++++++++++++++++++++++++++++++++++++++++++
- pfr_image_manager.hpp | 176 ++++++++++++++++++++++++
- 6 files changed, 525 insertions(+), 4 deletions(-)
- create mode 100644 dbus_helpers.hpp
- create mode 100644 pfr_image_manager.cpp
- create mode 100644 pfr_image_manager.hpp
+ bmc/dbus_helpers.hpp       |  30 ++++
+ bmc/item_updater.cpp       |   7 +-
+ bmc/meson.build            |   8 +-
+ meson.options              |   3 +
+ 7 files changed, 534 insertions(+), 4 deletions(-)
+ create mode 100644 bmc/dbus_helpers.hpp
+ create mode 100644 bmc/pfr_image_manager.cpp
+ create mode 100644 bmc/pfr_image_manager.hpp
 
-diff --git a/dbus_helpers.hpp b/dbus_helpers.hpp
+diff --git a/bmc/dbus_helpers.hpp b/bmc/dbus_helpers.hpp
 new file mode 100644
-index 0000000..dd811ea
+index 0000000..b9ffa36
 --- /dev/null
-+++ b/dbus_helpers.hpp
-@@ -0,0 +1,31 @@
++++ b/bmc/dbus_helpers.hpp
+@@ -0,0 +1,30 @@
 +#pragma once
 +
 +#include "config.h"
@@ -230,12 +223,11 @@ index 0000000..dd811ea
 +    }
 +    return false;
 +}
-+
-diff --git a/item_updater.cpp b/item_updater.cpp
-index bea8c5e..0ad71a0 100644
---- a/item_updater.cpp
-+++ b/item_updater.cpp
-@@ -69,10 +69,10 @@ void ItemUpdater::createActivation(sdbusplus::message_t& msg)
+diff --git a/bmc/item_updater.cpp b/bmc/item_updater.cpp
+index 1173444..df23a2e 100644
+--- a/bmc/item_updater.cpp
++++ b/bmc/item_updater.cpp
+@@ -68,10 +68,10 @@ void ItemUpdater::createActivation(sdbusplus::message_t& msg)
                      auto value = SVersion::convertVersionPurposeFromString(
                          std::get<std::string>(property.second));
                      if (value == VersionPurpose::BMC ||
@@ -248,15 +240,15 @@ index bea8c5e..0ad71a0 100644
                      {
                          purpose = value;
                      }
-@@ -471,6 +471,7 @@ void ItemUpdater::deleteAll()
- ItemUpdater::ActivationStatus
-     ItemUpdater::validateSquashFSImage(const std::string& filePath)
+@@ -570,6 +570,7 @@ void ItemUpdater::deleteAll()
+ ItemUpdater::ActivationStatus ItemUpdater::validateSquashFSImage(
+     const std::string& filePath)
  {
 +#ifndef PFR_UPDATE
      bool valid = true;
  
      // Record the images which are being updated
-@@ -488,7 +489,7 @@ ItemUpdater::ActivationStatus
+@@ -587,7 +588,7 @@ ItemUpdater::ActivationStatus ItemUpdater::validateSquashFSImage(
              return ItemUpdater::ActivationStatus::invalid;
          }
      }
@@ -265,41 +257,25 @@ index bea8c5e..0ad71a0 100644
      return ItemUpdater::ActivationStatus::ready;
  }
  
-diff --git a/meson.build b/meson.build
-index c7f5528..84116c8 100644
---- a/meson.build
-+++ b/meson.build
-@@ -69,6 +69,7 @@ conf.set('MMC_LAYOUT', get_option('bmc-layout').contains('mmc'))
- conf.set('HOST_BIOS_UPGRADE', get_option('host-bios-upgrade').allowed())
- conf.set('WANT_SIGNATURE_VERIFY', get_option('verify-signature').allowed())
- conf.set('FWUPD_SCRIPT', get_option('fwupd-script').allowed())
+diff --git a/bmc/meson.build b/bmc/meson.build
+index ca7e936..913b499 100644
+--- a/bmc/meson.build
++++ b/bmc/meson.build
+@@ -47,6 +47,7 @@ conf.set('WANT_SIGNATURE_VERIFY', get_option('verify-signature').allowed())
+ conf.set('START_UPDATE_DBUS_INTEFACE', get_option('software-update-dbus-interface').allowed())
+ 
+ conf.set('FWUPD_SCRIPT', get_option('fwupd-script').enabled())
 +conf.set('PFR_UPDATE', get_option('pfr-update').enabled())
  
  # Configurable variables
  conf.set('ACTIVE_BMC_MAX_ALLOWED', get_option('active-bmc-max-allowed'))
-@@ -255,10 +256,15 @@ executable(
-     install: true
- )
- 
-+image_manager_source = files('image_manager.cpp')
-+if get_option('pfr-update').enabled()
-+    image_manager_source = files('pfr_image_manager.cpp')
-+endif
-+
- executable(
-     'phosphor-version-software-manager',
--    'image_manager.cpp',
-     'image_manager_main.cpp',
-+    image_manager_source,
-     'version.cpp',
-     'watch.cpp',
-     dependencies: [deps, ssl],
+
 diff --git a/meson.options b/meson.options
-index c4e3294..2575155 100644
+index 07105d8..1033145 100644
 --- a/meson.options
 +++ b/meson.options
-@@ -33,5 +33,8 @@ option(
- option('fwupd-script', type: 'feature', value: 'enabled',
+@@ -37,6 +37,9 @@ option(
+ option('fwupd-script', type: 'feature',
      description: 'Enable fwupd script support.')
  
 +option('pfr-update', type: 'feature',
@@ -307,499 +283,7 @@ index c4e3294..2575155 100644
 +
  # Variables
  option(
-diff --git a/pfr_image_manager.cpp b/pfr_image_manager.cpp
-new file mode 100644
-index 0000000..7529829
---- /dev/null
-+++ b/pfr_image_manager.cpp
-@@ -0,0 +1,305 @@
-+#include "config.h"
-+#include "pfr_image_manager.hpp"
-+#include "dbus_helpers.hpp"
-+#include "version.hpp"
-+#include "watch.hpp"
-+#include <array>
-+#include <fcntl.h>
-+#include <openssl/err.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <sys/stat.h>
-+#include <sys/wait.h>
-+#include <time.h>
-+#include <unistd.h>
-+#include <boost/process/child.hpp>
-+#include <phosphor-logging/elog-errors.hpp>
-+#include <xyz/openbmc_project/Software/Image/error.hpp>
-+#include <algorithm>
-+#include <cstring>
-+#include <filesystem>
-+#include <fstream>
-+#include <iomanip>
-+#include <set>
-+#include <sstream>
-+#include <string>
-+namespace phosphor
-+{
-+namespace software
-+{
-+namespace manager
-+{
-+
-+using namespace sdbusplus::xyz::openbmc_project::Software::Image::Error;
-+namespace Software = phosphor::logging::xyz::openbmc_project::Software;
-+using UnTarFail = Software::Image::UnTarFailure;
-+using ImageFail = Software::Image::ImageFailure;
-+using BusyFail = Software::Image::BusyFailure;
-+
-+static constexpr const uint32_t pfmPos = 2054;
-+static constexpr const uint32_t fwupdateImageIdentifier = 0xB6EAFD19;
-+static constexpr const uint32_t lengthBlk0Blk1 = 1024;
-+
-+int Manager::verifyPFRImage(const std::filesystem::path imgPath,
-+                            std::string& version, std::string& purposeString)
-+{
-+    uint8_t imgType {};
-+    uint32_t imgMagic {};
-+    std::array<uint8_t, 2> verData {};
-+    struct pfrImgBlock0 block0Data {};
-+
-+    std::string verPurpose {"xyz.openbmc_project.Software.Version.VersionPurpose."};
-+
-+    if (std::filesystem::exists(imgPath))
-+    {
-+        try
-+        {
-+            std::ifstream imgFile(imgPath, std::ios::binary | std::ios::in);
-+
-+            if (!imgFile.good())
-+            {
-+                phosphor::logging::log<phosphor::logging::level::ERR>(
-+                    "Image file read failed");
-+                return -1;
-+            }
-+
-+            imgFile.read(reinterpret_cast<char*>(&block0Data),
-+                         sizeof(block0Data));
-+
-+            imgMagic = block0Data.tag;
-+
-+            if (imgMagic != fwupdateImageIdentifier)
-+            {
-+                phosphor::logging::log<phosphor::logging::level::ERR>(
-+                    "Image magic number match failed",
-+                    phosphor::logging::entry("IMAGEMAGIC=0x%x", imgMagic));
-+                phosphor::logging::report<UnTarFailure>(
-+                    UnTarFail::PATH(imgPath.c_str()));
-+                return -1;
-+            }
-+
-+            imgType = block0Data.pcType[0];
-+
-+            phosphor::logging::log<phosphor::logging::level::INFO>(
-+                "Image Type", phosphor::logging::entry(
-+                                  "IMAGETYPE=0x%x", static_cast<int>(imgType)));
-+
-+            if (imgType == pfrBMCUpdateCap || imgType == pfrBMCPFM)
-+            {
-+                purposeString = verPurpose + "BMC";
-+            }
-+            else if (imgType == pfrPCHUpdateCap || imgType == pfrPCHPFM ||
-+                     imgType == seamlessPCHUpdCap)
-+            {
-+                purposeString = verPurpose + "Host";
-+            }
-+            else if (imgType == pfrCPLDUpdateCap || imgType == pfrAFMUpdateCap ||
-+                     imgType == pfrCmpstCPLDUpdCap)
-+            {
-+                purposeString = verPurpose + "Other";
-+            }
-+            else
-+            {
-+                purposeString = verPurpose + "Unknown";
-+
-+                phosphor::logging::log<phosphor::logging::level::ERR>(
-+                    "Unknown image type");
-+                phosphor::logging::report<ImageFailure>(
-+                    ImageFail::FAIL("Unknown image type"),
-+                    ImageFail::PATH(imgPath.c_str()));
-+                return -1;
-+            }
-+
-+            // Verify the complete image
-+            std::string mtdUtilfile = "/usr/bin/mtd-util";
-+            std::vector<std::string> mtdUtilCmd = {"p", "a"};
-+            mtdUtilCmd.push_back(imgPath);
-+
-+            boost::process::child execProg(mtdUtilfile, mtdUtilCmd);
-+            execProg.wait();
-+            if (execProg.exit_code())
-+            {
-+                phosphor::logging::log<phosphor::logging::level::ERR>(
-+                    "Image authentication failed");
-+                phosphor::logging::report<ImageFailure>(
-+                    ImageFail::FAIL(
-+                        "Security violation: image authentication failure"),
-+                    ImageFail::PATH(imgPath.c_str()));
-+
-+                constexpr const char* redfishMsgID =
-+                    "OpenBMC.0.1.GeneralFirmwareSecurityViolation";
-+                sd_journal_send("MESSAGE=%s",
-+                                "Firmware image authentication failed",
-+                                "PRIORITY=%i", LOG_ERR, "REDFISH_MESSAGE_ID=%s",
-+                                redfishMsgID, "REDFISH_MESSAGE_ARGS=%s",
-+                                "Image authentication check fail", NULL);
-+                return -1;
-+            }
-+
-+            phosphor::logging::log<phosphor::logging::level::INFO>(
-+                "PFR image",
-+                phosphor::logging::entry("PCType=%d", block0Data.pcType[0]),
-+                phosphor::logging::entry("VERSION=%s", version.c_str()));
-+
-+            version =
-+                std::to_string(verData[0]) + "." + std::to_string(verData[1]);
-+        }
-+        catch (std::exception& e)
-+        {
-+            phosphor::logging::log<phosphor::logging::level::ERR>(e.what());
-+            phosphor::logging::report<ImageFailure>(
-+                ImageFail::FAIL("Unhandled exception"),
-+                ImageFail::PATH(imgPath.c_str()));
-+            return -1;
-+        }
-+    }
-+
-+    return 0;
-+}
-+
-+int Manager::processImage(const std::string& imgFilePath)
-+{
-+
-+    std::filesystem::path imgPath(imgFilePath);
-+
-+    if (!std::filesystem::exists(imgPath))
-+        return -1;
-+
-+    if (isFwupdScriptRunning(bus))
-+    {
-+        phosphor::logging::report<BusyFailure>(BusyFail::PATH(imgPath.c_str()));
-+        return -1;
-+    }
-+
-+    int retry = 3;
-+    std::string ver;
-+    std::string extVer;
-+    std::string purposeString;
-+
-+    if (0 != verifyPFRImage(imgFilePath, ver, purposeString))
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            "Error verifying uploaded image");
-+        std::filesystem::remove_all(imgFilePath);
-+        return -1;
-+    }
-+
-+    if (ver.empty())
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            "Empty version from image file");
-+        return -1;
-+    }
-+
-+    sdbusplus::xyz::openbmc_project::Software::server::Version::VersionPurpose
-+        purpose = Version::VersionPurpose::Unknown;
-+    try
-+    {
-+        purpose = Version::convertVersionPurposeFromString(purposeString);
-+    }
-+    catch (const sdbusplus::exception::InvalidEnumString& e)
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            "Error: Failed to convert purpose to enum."
-+            " Setting to Unknown.");
-+    }
-+
-+    // Compute id
-+    std::string id = Version::getId(ver);
-+
-+    // Append a random number after the original version hash
-+    // This will allow forcing image update onto the same version
-+    // with 3 retries on random number generation.
-+    do
-+    {
-+        srand(time(NULL));
-+        id = id + "_" + std::to_string(rand());
-+    } while ((versions.find(id) != versions.end()) && retry--);
-+
-+    if (versions.find(id) != versions.end())
-+    {
-+        phosphor::logging::log<phosphor::logging::level::INFO>(
-+            "Software Object with the same version already exists, exiting "
-+            "the update",
-+            phosphor::logging::entry("VERSION_ID=%s", id.c_str()));
-+
-+        return -1;
-+    }
-+
-+    std::filesystem::path imageDirPath(IMG_UPLOAD_DIR);
-+    imageDirPath /= id;
-+    try
-+    {
-+        std::filesystem::create_directory(imageDirPath);
-+    }
-+    catch (const std::filesystem::filesystem_error& fsErr)
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            fsErr.what());
-+    }
-+
-+    std::filesystem::path newFileName = imageDirPath / "image-runtime";
-+    try
-+    {
-+        std::filesystem::rename(imgFilePath, newFileName);
-+    }
-+    catch (const std::filesystem::filesystem_error& fsErr)
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            fsErr.what());
-+    }
-+
-+    // Create Version object
-+    std::string objPath = std::string{SOFTWARE_OBJPATH} + '/' + id;
-+
-+    auto versionPtr = std::make_unique<Version>(
-+        bus, objPath, ver, purpose, extVer, imageDirPath.string(),
-+        std::vector<std::string>(),
-+        std::bind(&Manager::erase, this, std::placeholders::_1));
-+    versionPtr->deleteObject =
-+        std::make_unique<phosphor::software::manager::Delete>(bus, objPath,
-+                                                              *versionPtr);
-+    versions.insert(std::make_pair(id, std::move(versionPtr)));
-+
-+    return 0;
-+}
-+
-+void Manager::erase(std::string entryId)
-+{
-+    auto it = versions.find(entryId);
-+    if (it == versions.end())
-+    {
-+        return;
-+    }
-+
-+    if (it->second->isFunctional())
-+    {
-+        phosphor::logging::log<phosphor::logging::level::ERR>(
-+            ("Error: Version " + entryId +
-+             " is currently running on the BMC."
-+             " Unable to remove.")
-+                .c_str());
-+        return;
-+    }
-+
-+    // Delete image dir
-+    std::filesystem::path imageDirPath = it->second->path();
-+    if (std::filesystem::exists(imageDirPath))
-+    {
-+        std::filesystem::remove_all(imageDirPath);
-+    }
-+    this->versions.erase(entryId);
-+}
-+
-+CustomMap Manager::mapFile(const std::filesystem::path& path, size_t size)
-+{
-+
-+    CustomFd fd(open(path.c_str(), O_RDONLY));
-+
-+    return CustomMap(mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd(), 0),
-+                     size);
-+}
-+} // namespace manager
-+} // namespace software
-+} // namespace phosphor
-+
-diff --git a/pfr_image_manager.hpp b/pfr_image_manager.hpp
-new file mode 100644
-index 0000000..6e7e820
---- /dev/null
-+++ b/pfr_image_manager.hpp
-@@ -0,0 +1,176 @@
-+#pragma once
-+#include "version.hpp"
-+#include <openssl/evp.h>
-+#include <openssl/pem.h>
-+#include <openssl/rsa.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
-+#include <sdbusplus/server.hpp>
-+#include <filesystem>
-+
-+namespace phosphor
-+{
-+namespace software
-+{
-+namespace manager
-+{
-+
-+enum pfrImgPCType
-+{
-+    pfrCPLDUpdateCap = 0x00,
-+    pfrPCHPFM = 0x01,
-+    pfrPCHUpdateCap = 0x02,
-+    pfrBMCPFM = 0x03,
-+    pfrBMCUpdateCap = 0x04,
-+    seamlessPCHUpdCap = 0x05,
-+    pfrAFMUpdateCap = 0x06,
-+    pfrCmpstCPLDUpdCap = 0x07
-+};
-+
-+/* PFR image block 0 - As defined in HAS */
-+struct pfrImgBlock0
-+{
-+    uint32_t tag;
-+    uint8_t pcLength[4];
-+    uint8_t pcType[4];
-+    uint8_t reserved1[4];
-+    uint8_t hash256[32];
-+    uint8_t hash384[48];
-+    uint8_t reserved2[32];
-+} __attribute__((packed));
-+
-+/** @struct CustomFd
-+ *
-+ *  RAII wrapper for file descriptor.
-+ */
-+struct CustomFd
-+{
-+  public:
-+    CustomFd() = delete;
-+    CustomFd(const CustomFd&) = delete;
-+    CustomFd& operator=(const CustomFd&) = delete;
-+    CustomFd(CustomFd&&) = default;
-+    CustomFd& operator=(CustomFd&&) = default;
-+    /** @brief Saves File descriptor and uses it to do file operation
-+     *
-+     *  @param[in] fileDescriptor - File descriptor
-+     */
-+    CustomFd(int fileDescriptor) : fd(fileDescriptor)
-+    {}
-+
-+    ~CustomFd()
-+    {
-+        if (fd >= 0)
-+        {
-+            close(fd);
-+        }
-+    }
-+
-+    int operator()() const
-+    {
-+        return fd;
-+    }
-+
-+  private:
-+    /** @brief File descriptor */
-+    int fd = -1;
-+};
-+
-+/** @struct CustomMap
-+ *
-+ *  RAII wrapper for mmap.
-+ */
-+struct CustomMap
-+{
-+  private:
-+    /** @brief starting address of the map   */
-+    void* addr;
-+
-+    /** @brief length of the mapping   */
-+    size_t length;
-+
-+  public:
-+    CustomMap() = delete;
-+    CustomMap(const CustomMap&) = delete;
-+    CustomMap& operator=(const CustomMap&) = delete;
-+    CustomMap(CustomMap&&) = default;
-+    CustomMap& operator=(CustomMap&&) = default;
-+
-+    /** @brief Saves starting address of the map and
-+     *         and length of the file.
-+     *  @param[in]  mapAddress - Starting address of the map
-+     *  @param[in]  mapLength - length of the map
-+     */
-+    CustomMap(void* mapAddress, size_t mapLength) : addr(mapAddress), length(mapLength)
-+    {}
-+
-+    ~CustomMap()
-+    {
-+        munmap(addr, length);
-+    }
-+
-+    void* operator()() const
-+    {
-+        return addr;
-+    }
-+};
-+
-+/** @class Manager
-+ *  @brief Contains a map of Version dbus objects.
-+ *  @details The software image manager class that contains the Version dbus
-+ *           objects and their version ids.
-+ */
-+class Manager
-+{
-+  public:
-+    /** @brief Constructs Manager Class
-+     *
-+     * @param[in] bus - The Dbus bus object
-+     */
-+    Manager(sdbusplus::bus::bus& bus) : bus(bus){};
-+
-+    /**
-+     * @brief Verify the image and provide the image to updater.
-+     *        Create and populate the version and file path interfaces.
-+     *
-+     * @param[in]  uploaded image.
-+     * @param[out] result          - 0 if successful.
-+     */
-+    int processImage(const std::string& imageFilePath);
-+
-+    /**
-+     * @brief Erase specified entry d-bus object
-+     *        and deletes the image file.
-+     *
-+     * @param[in] entryId - unique identifier of the entry
-+     */
-+    void erase(std::string entryId);
-+
-+  private:
-+    /**
-+     * @brief Memory map the  file
-+     * @param[in]  - file path
-+     * @param[in]  - file size
-+     * @param[out] - Custom Mmap address
-+     */
-+    CustomMap mapFile(const std::filesystem::path& path, size_t size);
-+
-+    /**
-+     * @brief Verify the PFR image and return version and purpose
-+     * @param[in]  - file path
-+     * @param[out]  - version
-+     * @param[out]  - purpose
-+     */
-+    int verifyPFRImage(const std::filesystem::path imgPath,
-+                       std::string& version, std::string& purposeString);
-+    /** @brief Persistent map of Version dbus objects and their
-+     * version id */
-+    std::map<std::string, std::unique_ptr<Version>> versions;
-+
-+    /** @brief Persistent sdbusplus DBus bus connection. */
-+    sdbusplus::bus::bus& bus;
-+};
-+
-+} // namespace manager
-+} // namespace software
-+} // namespace phosphor
+     'active-bmc-max-allowed', type: 'integer',
 -- 
-2.34.1
+2.25.1
 

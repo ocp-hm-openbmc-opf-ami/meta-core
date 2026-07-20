@@ -1,20 +1,24 @@
 require conf/machine/include/ast2700-sdk.inc
 require conf/machine/include/ast-ssp.inc
 require conf/machine/include/ast-tsp.inc
-#require conf/machine/include/ast-caliptra.inc
 require conf/machine/include/obmc-bsp-common.inc
 require conf/machine/include/intel-pfr.inc
 
 # Overwrite flash layout
 
-FLASH_SIZE = "131072"
-FLASH_CALIPTRA_SIZE:flash-131072 = "128"
-FLASH_BMCU_SIZE:flash-131072 = "896"
+#FLASH_SIZE = "131072"
 FLASH_UBOOT_OFFSET:flash-131072 = "0"
 FLASH_UBOOT_ENV_OFFSET:flash-131072 = "4096"
 FLASH_KERNEL_OFFSET:flash-131072 = "4224"
 FLASH_ROFS_OFFSET:flash-131072 = "15488"
 FLASH_RWFS_OFFSET:flash-131072 = "100352"
+
+# 256MB flash overrides (pfr-256)
+FLASH_UBOOT_OFFSET:flash-262144 = "0"
+FLASH_UBOOT_ENV_OFFSET:flash-262144 = "4096"
+FLASH_KERNEL_OFFSET:flash-262144 = "4224"
+FLASH_ROFS_OFFSET:flash-262144 = "15488"
+FLASH_RWFS_OFFSET:flash-262144 = "72832"
 
 # PFR settings
 PFR_IMAGE_SIZE = "262144"
@@ -30,18 +34,14 @@ PFR_MANIFEST = "pfr_manifest_ast2700_dcscm.json"
 PFR_SHA = "2"
 
 # CALIPTRA Settings
-CALIPTRA_FW_BINARY = "ast2700-caliptra-fw.bin"
+CALIPTRA_FW_BINARY = "caliptra-fw.bin"
 
 # BootMCU Build Settings
-BOOTMCU_MACHINE = "ibex-ast2700_defconfig"
-BOOTMCU_FW_BINARY = "ast2700-ibex-spl.bin"
+BOOTMCU_FW_BINARY = "ast2700-mcu-runtime.bin"
 
 # U-Boot Build Settings
 UBOOT_MACHINE = "evb-ast2700_defconfig"
-#UBOOT_DEVICETREE = "ast2700-evb"
 UBOOT_DEVICETREE = "ast2700-dcscm"
-UBOOT_SIGN_ENABLE = "1"
-UBOOT_FITIMAGE_ENABLE = "1"
 
 # Kernel Build Settings
 KBUILD_DEFCONFIG = "aspeed_g7_defconfig"
@@ -58,5 +58,10 @@ MACHINE_FEATURES += "\
 
 PREFERRED_PROVIDER_virtual/obmc-system-mgmt = "packagegroup-aspeed-obmc"
 PREFERRED_PROVIDER_virtual/obmc-host-ipmi-hw = "phosphor-ipmi-kcs"
+PREFERRED_PROVIDER_virtual/phosphor-led-manager-config-native = "dcscm-2700-led-manager-config-native"
 VIRTUAL-RUNTIME_obmc-host-state-manager ?= "x86-power-control"
 VIRTUAL-RUNTIME_obmc-chassis-state-manager ?= "x86-power-control"
+
+EXTRA_IMAGEDEPENDS:append = " \
+    aspeed-image-recoveryuart \
+    "

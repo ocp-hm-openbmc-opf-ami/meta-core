@@ -201,3 +201,12 @@ python() {
                 'do_generate_auto', d)
 }
 
+CLEANFUNCS += "clean_deploy_pfr_image"
+python clean_deploy_pfr_image() {
+    import shutil, os
+    pfr_dir = d.getVar('PFR_IMAGES_DIR')
+    if pfr_dir and os.path.exists(pfr_dir):
+        shutil.rmtree(pfr_dir)
+        bb.note("Removed PFR images directory: %s" % pfr_dir)
+}
+

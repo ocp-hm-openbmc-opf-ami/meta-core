@@ -33,7 +33,7 @@ IMAGE_INSTALL:append = " \
         dbus-broker \
         intel-ipmi-oem \
         smbios-mdr \
-        system-watchdog \
+        hw-watchdog \
         callback-manager \
         preinit-mounts \
         mtd-utils-ubifs \
@@ -43,7 +43,6 @@ IMAGE_INSTALL:append = " \
         kernel-panic-check \
         hsbp-manager \
         security-registers-check \
-        nv-sync \
         security-manager \
         host-misc-comm-manager \
         telemetry \
@@ -55,11 +54,27 @@ IMAGE_INSTALL:append = " \
 
 IMAGE_INSTALL:remove:oks-features = " peci-pcie "
 
-IMAGE_INSTALL:append:oks-features = " mctpd mctp-cmd-tool cxl-cci mmbi-ipmi "
+IMAGE_INSTALL:append:oks-features = " mctp-cmd-tool cxl-cci mmbi-ipmi domain-mapperd "
 
-#IMAGE_INSTALL:append:bhs-features = " \
-#        power-feature-discovery \
-#        "
+AF_MCTP_FEATURES = " \
+	mctp \
+	i3c-hub-detector \
+	mctp-setup \
+	mctp-traces \
+	tcpdump \
+	libpcap \
+        "
+
+INTEL_MCTP_FEATURES = " \
+        mctpd \
+        pmci-launcher \
+        "
+
+IMAGE_INSTALL:append:oks-features = "${@bb.utils.contains('EXTRA_IMAGE_FEATURES', 'intel-af-mctp', '${AF_MCTP_FEATURES}', '${INTEL_MCTP_FEATURES}', d)}"
+
+IMAGE_INSTALL:append:bhs-features = " \
+        power-feature-discovery \
+        "
 
 IMAGE_INSTALL:append = " ${@bb.utils.contains('IMAGE_FSTYPES', 'intel-pfr', 'pfr-manager', '', d)}"
 IMAGE_INSTALL:append = " ${@bb.utils.contains('IMAGE_FSTYPES', 'intel-pfr', 'secure-pfr-manager', '', d)}"

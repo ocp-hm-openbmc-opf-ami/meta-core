@@ -38,25 +38,58 @@ python() {
             if 'egs' in gen:
                 # if intel-pfr & egs, increase flash size to 256MB and max fit image size to 55MB
                 d.setVar('FLASH_SIZE', str(256*1024))
-                DTB_FULL_FIT_IMAGE_OFFSETS = [0xb00000]
-                d.setVar('FIT_SECTOR_SIZE', str(0x3500000))
+                new_active_offset = d.getVar('DTB_FULL_FIT_IMAGE_OFFSETS', True)
+                if new_active_offset:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [int(new_active_offset, 16)]
+                else:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [0xb00000]
+                new_fit_sector_size = d.getVar('FIT_SECTOR_SIZE', True)
+                if new_fit_sector_size:
+                    d.setVar('FIT_SECTOR_SIZE', str(int(new_fit_sector_size, 16)))
+                else:
+                    d.setVar('FIT_SECTOR_SIZE', str(0x3500000))
+                d.setVar('UBOOT_SEC_SIZE', str(1024*1024))
+            elif 'oks' in gen:
+                # if intel-pfr & oks, flash size 256MB, fit image offset 0x1120000, size 53MB
+                d.setVar('FLASH_SIZE', str(256*1024))
+                new_active_offset = d.getVar('DTB_FULL_FIT_IMAGE_OFFSETS', True)
+                if new_active_offset:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [int(new_active_offset, 16)]
+                else:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [0x1120000]
+                new_fit_sector_size = d.getVar('FIT_SECTOR_SIZE', True)
+                if new_fit_sector_size:
+                    d.setVar('FIT_SECTOR_SIZE', str(int(new_fit_sector_size, 16)))
+                else:
+                    d.setVar('FIT_SECTOR_SIZE', str(0x3500000))
                 d.setVar('UBOOT_SEC_SIZE', str(1024*1024))
             else:
-                # if intel-pfr & bhs, increase flash size to 256MB and max fit image size to 54.5MB
+                # if intel-pfr & bhs, increase flash size to 256MB and max fit image size to 60MB
                 d.setVar('FLASH_SIZE', str(256*1024))
-                DTB_FULL_FIT_IMAGE_OFFSETS = [0xb80000]
-                d.setVar('FIT_SECTOR_SIZE', str(0x3480000))
+                new_active_offset = d.getVar('DTB_FULL_FIT_IMAGE_OFFSETS', True)
+                if new_active_offset:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [int(new_active_offset, 16)]
+                else:
+                    DTB_FULL_FIT_IMAGE_OFFSETS = [0xb80000]
+                new_fit_sector_size = d.getVar('FIT_SECTOR_SIZE', True)
+                if new_fit_sector_size:
+                    d.setVar('FIT_SECTOR_SIZE', str(int(new_fit_sector_size, 16)))
+                else:
+                    d.setVar('FIT_SECTOR_SIZE', str(0x3C00000))
                 d.setVar('UBOOT_SEC_SIZE', str(1024*1024))
         else:
             d.setVar('FLASH_SIZE', str(128*1024))
-            d.setVar('FIT_SECTOR_SIZE', str(0x1f00000))
+            new_fit_sector_size = d.getVar('FIT_SECTOR_SIZE', True)
+            if new_fit_sector_size:
+                d.setVar('FIT_SECTOR_SIZE', str(int(new_fit_sector_size, 16)))
+            else:
+                d.setVar('FIT_SECTOR_SIZE', str(0x2680000))
             new_active_offset = d.getVar('DTB_FULL_FIT_IMAGE_OFFSETS', True)
             if new_active_offset:
                 DTB_FULL_FIT_IMAGE_OFFSETS = [int(new_active_offset, 16)]
-                d.setVar('FIT_SECTOR_SIZE', str(0x26A4D9E))
-                d.setVar('UBOOT_SEC_SIZE', str(1024*1024))
             else :
-                DTB_FULL_FIT_IMAGE_OFFSETS = [0xb00000]
+                DTB_FULL_FIT_IMAGE_OFFSETS = [0x880000]
+            d.setVar('UBOOT_SEC_SIZE', str(1024*1024))
     else:
         flash_size = d.getVar('FLASH_SIZE', True)
         if flash_size:
@@ -169,6 +202,43 @@ do_generate_auto[depends] += " \
         virtual/kernel:do_deploy \
         u-boot:do_populate_sysroot \
         "
+
+CLEANFUNCS += "clean_deploy_auto_image"
+python clean_deploy_auto_image() {
+    import os, glob
+    deploy_dir = d.getVar('DEPLOY_DIR_IMAGE')
+    if not deploy_dir or not os.path.isdir(deploy_dir):
+        return
+
+    # Remove .auto.mtd files
+    for f in glob.glob(os.path.join(deploy_dir, '*.auto.mtd')):
+        try:
+            os.remove(f)
+            bb.note("Removed %s" % f)
+        except OSError:
+            pass
+
+    # Remove image-mtd symlink
+    image_mtd = os.path.join(deploy_dir, 'image-mtd')
+    if os.path.lexists(image_mtd):
+        os.remove(image_mtd)
+        bb.note("Removed %s" % image_mtd)
+
+    # Remove OBMC-*.ROM symlinks
+    for f in glob.glob(os.path.join(deploy_dir, 'OBMC-*.ROM')):
+        try:
+            os.remove(f)
+            bb.note("Removed %s" % f)
+        except OSError:
+            pass
+
+    # Remove intermediate u-boot image
+    image_dst = d.getVar('image_dst') or 'image-u-boot'
+    dst = os.path.join(deploy_dir, image_dst)
+    if os.path.lexists(dst):
+        os.remove(dst)
+        bb.note("Removed %s" % dst)
+}
 
 python() {
     types = d.getVar('IMAGE_FSTYPES', True).split()

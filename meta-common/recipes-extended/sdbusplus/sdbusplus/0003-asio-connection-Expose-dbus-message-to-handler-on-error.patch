@@ -1,0 +1,56 @@
+From 25c79c2f3ae77bd696590ba7e529866719f7805d Mon Sep 17 00:00:00 2001
+From: ramadevi <ramadevip@ami.com>
+Date: Tue, 12 May 2026 11:46:07 +0530
+Subject: [PATCH] asio::connection: Expose dbus message to handler on error
+
+unpack was hiding the dbus message when the response contained an error.
+For redfish-core/lib/account_service.hpp processAfterCreateUser
+function attempted to access the underlying message, it would throw an
+exception that mapped to a generic error handler. Exposing the dbus
+message enables this function to show the real issue in its response.
+
+Signed-off-by: ramadevi <ramadevip@ami.com>
+---
+ include/sdbusplus/asio/connection.hpp | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/include/sdbusplus/asio/connection.hpp b/include/sdbusplus/asio/connection.hpp
+index 5cb6818..66868d7 100644
+--- a/include/sdbusplus/asio/connection.hpp
++++ b/include/sdbusplus/asio/connection.hpp
+@@ -124,11 +124,18 @@ class connection : public sdbusplus::bus_t
+         using FunctionTuple = boost::callable_traits::args_t<MessageHandler>;
+         using FunctionTupleType = utility::decay_tuple_t<FunctionTuple>;
+         FunctionTupleType responseData;
+-        if (ec)
++
++        std::get<0>(responseData) = ec;
++
++        if constexpr (utility::details::args_to_skip<FunctionTupleType>() == 2)
+         {
+-            std::get<0>(responseData) = ec;
++            // Forward the message so handlers can inspect get_error() on D-Bus
++            // error replies. ec is derived from message.get_errno(), so the
++            // message is valid even when ec is non-zero.
++            std::get<1>(responseData) = r;
+         }
+-        else
++
++        if (!ec)
+         {
+             try
+             {
+@@ -137,7 +144,9 @@ class connection : public sdbusplus::bus_t
+             }
+             catch (const std::exception&)
+             {
+-                // Set error code if not already set
++                // This message waas received with no error, however we failed
++                // to parse the message; force error-code to let the consumer
++                // know of the failure in the handler.
+                 std::get<0>(responseData) =
+                     boost::system::errc::make_error_code(
+                         boost::system::errc::invalid_argument);
+-- 
+2.43.0
+

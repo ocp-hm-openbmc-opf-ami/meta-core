@@ -26,7 +26,7 @@ UBOOT_SUFFIX ?= "bin"
 
 MACHINEOVERRIDES =. "openbmc:"
 
-OBMC_PHOSPHOR_IMAGE_OVERLAY= "1"
+OBMC_PHOSPHOR_IMAGE_OVERLAY = "1"
 OBMC_IMAGE_EXTRA_INSTALL:append = "u-boot-fw-utils-aspeed-sdk"
 
 IMAGE_CLASSES += "image_types image_types_phosphor_auto qemuboot"

@@ -115,6 +115,43 @@ do_generate_auto[depends] += " \
         u-boot:do_populate_sysroot \
         "
 
+CLEANFUNCS += "clean_deploy_auto_image"
+python clean_deploy_auto_image() {
+    import os, glob
+    deploy_dir = d.getVar('DEPLOY_DIR_IMAGE')
+    if not deploy_dir or not os.path.isdir(deploy_dir):
+        return
+
+    # Remove .auto.mtd files
+    for f in glob.glob(os.path.join(deploy_dir, '*.auto.mtd')):
+        try:
+            os.remove(f)
+            bb.note("Removed %s" % f)
+        except OSError:
+            pass
+
+    # Remove image-mtd symlink
+    image_mtd = os.path.join(deploy_dir, 'image-mtd')
+    if os.path.lexists(image_mtd):
+        os.remove(image_mtd)
+        bb.note("Removed %s" % image_mtd)
+
+    # Remove OBMC-*.ROM symlinks
+    for f in glob.glob(os.path.join(deploy_dir, 'OBMC-*.ROM')):
+        try:
+            os.remove(f)
+            bb.note("Removed %s" % f)
+        except OSError:
+            pass
+
+    # Remove intermediate u-boot image
+    image_dst = d.getVar('image_dst') or 'image-u-boot'
+    dst = os.path.join(deploy_dir, image_dst)
+    if os.path.lexists(dst):
+        os.remove(dst)
+        bb.note("Removed %s" % dst)
+}
+
 python() {
     types = d.getVar('IMAGE_FSTYPES', True).split()
 

@@ -1,18 +1,16 @@
-From 5b21859376cb19841661063e7c55af0faddd77ea Mon Sep 17 00:00:00 2001
-From: roycheng <roycheng@ami.com>
-Date: Tue, 4 Nov 2025 18:09:50 +0800
-Subject: [PATCH] Enabled-mctp-i3c-socket-based-driver.patch
+From 8a9fac58d91f123a79f801292e69a3a674f7e5d2 Mon Sep 17 00:00:00 2001
+From: ShengHsiuHuang <ShengHsiuHuang@ami.com>
+Date: Mon, 30 Mar 2026 23:39:40 +0800
+Subject: [PATCH 3/5] Enabled mctp i3c socket based driver
 
-Signed-off-by: desmondwu <desmondwu@ami.com>
 ---
  drivers/i3c/Makefile               |   1 +
  drivers/i3c/mctp-i3c-misc.c        |  11 +
  drivers/net/mctp/Kconfig           |   9 +
  drivers/net/mctp/Makefile          |   1 +
  drivers/net/mctp/mctp-i3c-target.c | 690 +++++++++++++++++++++++++++++
- drivers/net/mctp/mctp-i3c.c        | 201 +++++++--
- net/mctp/route.c                   |  11 +-
- 7 files changed, 886 insertions(+), 38 deletions(-)
+ drivers/net/mctp/mctp-i3c.c        | 204 +++++++--
+ 6 files changed, 878 insertions(+), 38 deletions(-)
  create mode 100644 drivers/i3c/mctp-i3c-misc.c
  create mode 100644 drivers/net/mctp/mctp-i3c-target.c
 
@@ -46,10 +44,10 @@ index 000000000000..daf733549764
 +       return NULL;
 +}
 diff --git a/drivers/net/mctp/Kconfig b/drivers/net/mctp/Kconfig
-index df6f0257ac16..b7a00b03c7c0 100644
+index a3196be75fc1..87a476688414 100644
 --- a/drivers/net/mctp/Kconfig
 +++ b/drivers/net/mctp/Kconfig
-@@ -42,6 +42,15 @@ config MCTP_TRANSPORT_I3C
+@@ -47,6 +47,15 @@ config MCTP_TRANSPORT_I3C
  	  A MCTP protocol network device is created for each I3C bus
  	  having a "mctp-controller" devicetree property.
  
@@ -773,10 +771,10 @@ index 000000000000..5ecf68686132
 +MODULE_LICENSE("GPL");
 +MODULE_AUTHOR("Venkateshwaran R <venkateshwaranr@ami.com>");
 diff --git a/drivers/net/mctp/mctp-i3c.c b/drivers/net/mctp/mctp-i3c.c
-index ec5400378ffe..78e9aa4dd5cb 100644
+index ec5400378ffe..878eb78bcc89 100644
 --- a/drivers/net/mctp/mctp-i3c.c
 +++ b/drivers/net/mctp/mctp-i3c.c
-@@ -12,14 +12,21 @@
+@@ -12,14 +12,22 @@
  #include <linux/netdevice.h>
  #include <linux/i3c/device.h>
  #include <linux/i3c/master.h>
@@ -790,15 +788,17 @@ index ec5400378ffe..78e9aa4dd5cb 100644
 +#define POLLING_TIMEOUT_MS			50
 +#define MCTP_INTERRUPT_NUMBER			1
 +
- #define MCTP_I3C_MAXBUF 65536
- /* 48 bit Provisioned Id */
- #define PID_SIZE 6
++#define PID_SIZE 6
 +#define I3C_MCTP_MIN_TRANSFER_SIZE              69
 +#define I3C_MCTP_IBI_PAYLOAD_SIZE               2
++
+ #define MCTP_I3C_MAXBUF 65536
+ /* 48 bit Provisioned Id */
+-#define PID_SIZE 6
  
  /* 64 byte payload, 4 byte MCTP header */
  static const int MCTP_I3C_MINMTU = 64 + 4;
-@@ -38,6 +45,7 @@ static const int MCTP_I3C_IBI_SLOTS = 8;
+@@ -38,6 +46,7 @@ static const int MCTP_I3C_IBI_SLOTS = 8;
  #define I3C_MDB_MCTP 0xAE
  /* From MIPI Device Characteristics Register (DCR) Assignments */
  #define I3C_DCR_MCTP 0xCC
@@ -806,7 +806,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  
  static const char *MCTP_I3C_OF_PROP = "mctp-controller";
  
-@@ -73,6 +81,7 @@ struct mctp_i3c_device {
+@@ -73,6 +82,7 @@ struct mctp_i3c_device {
  	struct i3c_device *i3c;
  	struct mctp_i3c_bus *mbus;
  	struct list_head list; /* Element of mctp_i3c_bus.devs */
@@ -814,7 +814,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  
  	/* Held while tx_thread is using this device */
  	struct mutex lock;
-@@ -87,6 +96,8 @@ struct mctp_i3c_device {
+@@ -87,6 +97,8 @@ struct mctp_i3c_device {
  	u16 mwl;
  	/* Provisioned ID */
  	u64 pid;
@@ -823,7 +823,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  };
  
  /* We synthesise a mac header using the Provisioned ID.
-@@ -184,32 +195,144 @@ static void mctp_i3c_ibi_handler(struct i3c_device *i3c,
+@@ -184,32 +196,144 @@ static void mctp_i3c_ibi_handler(struct i3c_device *i3c,
  	if (WARN_ON_ONCE(!mi))
  		return;
  
@@ -979,7 +979,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  
  	i3c_device_get_info(mi->i3c, &info);
  	mi->have_mdb = info.bcr & BIT(2);
-@@ -218,37 +341,36 @@ static int mctp_i3c_setup(struct mctp_i3c_device *mi)
+@@ -218,37 +342,36 @@ static int mctp_i3c_setup(struct mctp_i3c_device *mi)
  	mi->mrl = info.max_read_len;
  	mi->pid = info.pid;
  
@@ -1042,7 +1042,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  }
  
  /* Adds a new MCTP i3c_device to a bus */
-@@ -266,6 +388,7 @@ __must_hold(&busdevs_lock)
+@@ -266,6 +389,7 @@ __must_hold(&busdevs_lock)
  	}
  	mi->mbus = mbus;
  	mi->i3c = i3c;
@@ -1050,7 +1050,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  	mutex_init(&mi->lock);
  	list_add(&mi->list, &mbus->devs);
  
-@@ -312,6 +435,9 @@ __must_hold(&busdevs_lock)
+@@ -312,6 +436,9 @@ __must_hold(&busdevs_lock)
  	/* Ensure the tx thread isn't using the device */
  	mutex_lock(&mi->lock);
  
@@ -1060,7 +1060,7 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  	/* Counterpart of mctp_i3c_setup */
  	i3c_device_disable_ibi(mi->i3c);
  	i3c_device_free_ibi(mi->i3c);
-@@ -714,6 +840,7 @@ static struct notifier_block mctp_i3c_notifier = {
+@@ -714,6 +841,7 @@ static struct notifier_block mctp_i3c_notifier = {
  
  static const struct i3c_device_id mctp_i3c_ids[] = {
  	I3C_CLASS(I3C_DCR_MCTP, NULL),
@@ -1068,35 +1068,6 @@ index ec5400378ffe..78e9aa4dd5cb 100644
  	{ 0 },
  };
  
-diff --git a/net/mctp/route.c b/net/mctp/route.c
-index cf5ae2adf1df..a6cd72b5e039 100644
---- a/net/mctp/route.c
-+++ b/net/mctp/route.c
-@@ -533,7 +533,10 @@ static int mctp_route_output(struct mctp_route *route, struct sk_buff *skb)
- 		return -EMSGSIZE;
- 	}
- 
--	if (cb->ifindex) {
-+	//if (cb->ifindex) {
-+	//set daddr from skb only in direct adressing mode , eids will be null in direct adressing mode
-+	if((cb->ifindex) && ((mctp_address_null(route->min)) && (mctp_address_null(route->max))))
-+	{
- 		/* direct route; use the hwaddr we stashed in sendmsg */
- 		if (cb->halen != skb->dev->addr_len) {
- 			/* sanity check, sendmsg should have already caught this */
-@@ -1177,6 +1180,12 @@ static int mctp_pkttype_receive(struct sk_buff *skb, struct net_device *dev,
- 	if (!rt)
- 		goto err_drop;
- 
-+	if (rt->output == mctp_route_output) {
-+		// Handle packets destined for other devices
-+		skb->dev = rt->dev->dev;
-+		cb->ifindex = rt->dev->dev->ifindex;
-+	}
-+
- 	rt->output(rt, skb);
- 	mctp_route_release(rt);
- 	mctp_dev_put(mdev);
 -- 
-2.52.0
+2.34.1
 

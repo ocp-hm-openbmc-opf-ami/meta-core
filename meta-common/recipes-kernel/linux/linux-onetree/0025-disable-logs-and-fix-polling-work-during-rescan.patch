@@ -1,0 +1,84 @@
+From ab5316a04a5e1abdc3dc6c8b151d664e4ff36ba8 Mon Sep 17 00:00:00 2001
+From: kirankumarreddyt <kirankumarreddyt@ami.com>
+Date: Tue, 17 Mar 2026 22:47:20 +0530
+Subject: [PATCH] disable logs and  fix polling error during rescan
+
+---
+ drivers/net/mctp/mctp-i3c-target.c |  2 --
+ drivers/net/mctp/mctp-i3c.c        | 30 ++++++++++++------------------
+ 2 files changed, 12 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/net/mctp/mctp-i3c-target.c b/drivers/net/mctp/mctp-i3c-target.c
+index 5ecf68686132..67ea109f2e21 100644
+--- a/drivers/net/mctp/mctp-i3c-target.c
++++ b/drivers/net/mctp/mctp-i3c-target.c
+@@ -118,8 +118,6 @@ static void mctp_i3c_target_read(struct i3c_device *i3cdev, const u8 *data, size
+ 	skb_pull(skb, sizeof(struct mctp_i3c_target_internal_hdr));
+ 
+ 	if (count < (I3C_MCTP_MIN_PACKET_SIZE + 1) || count > (I3C_MCTP_PACKET_SIZE + 1)) {
+-		dev_err(i3cdev_to_dev(i3cdev),
+-			" MCTP packet length invalid \n");
+ 		kfree_skb(skb);
+ 		return;
+ 	}
+diff --git a/drivers/net/mctp/mctp-i3c.c b/drivers/net/mctp/mctp-i3c.c
+index 78e9aa4dd5cb..24e694c3f375 100644
+--- a/drivers/net/mctp/mctp-i3c.c
++++ b/drivers/net/mctp/mctp-i3c.c
+@@ -254,7 +254,6 @@ static void mctp_i3c_disable_ibi(struct i3c_device *i3cdev)
+ 		i3c_device_free_ibi(i3cdev);
+ 	} else {
+ 		dev_warn(i3cdev_to_dev(i3cdev), "Failed to disable IBI, ret = %d", ret);
+-		return;
+ 	}
+ 
+ 	priv->ibi_enabled = false;
+@@ -292,33 +291,28 @@ static void i3c_mctp_i3c_event_cb(struct i3c_device *i3cdev, enum i3c_event even
+ 	struct mctp_i3c_device *mi = i3cdev_get_drvdata(i3cdev);
+        switch (event) {
+        case i3c_event_prepare_for_rescan: {
+-               /* Disable IBI before rescan */
++		/* Disable IBI before rescan */
+ 		mctp_i3c_disable_ibi(i3cdev);
+ 		cancel_delayed_work(&mi->poll_work);
+-		msleep(200);
+-
+-               break;
++		msleep(100);
++		break;
+        }
+        case i3c_event_rescan_done: {
+ 
+                /* Wait a bit after rescan before enabling IBI */
+-		msleep(500);
+-		printk(KERN_INFO "mctp-i3c: new i3c_event_rescan_done ");
++		msleep(300);
+                /* Get updated device info */
+                i3c_device_get_info(i3cdev, &info);
+-               printk(KERN_INFO "mctp-i3c: Device PID: %016llx, Dynamic Addr: 0x%02x\n",
+-                          info.pid, info.dyn_addr);
++               //printk(KERN_INFO "mctp-i3c: Device PID: %016llx, Dynamic Addr: 0x%02x\n",
++               //           info.pid, info.dyn_addr);
+ 
+                /* Re-request and enable IBI after rescan */
+-               if (mctp_i3c_enable_ibi(i3cdev)) {
+-			printk(KERN_INFO "mctp-i3c: new falling aback to polling after rescan as ibi enable failed ");
+-			INIT_DELAYED_WORK(&mi->poll_work, mctp_i3c_poll_work);
+-			schedule_delayed_work(
+-				&mi->poll_work,
+-				msecs_to_jiffies(POLLING_TIMEOUT_MS));
+-		}
+-
+-
++	       if (mctp_i3c_enable_ibi(i3cdev)) {
++		       if(!delayed_work_pending(&mi->poll_work)) {
++			       INIT_DELAYED_WORK(&mi->poll_work, mctp_i3c_poll_work);
++			       schedule_delayed_work( &mi->poll_work, msecs_to_jiffies(POLLING_TIMEOUT_MS));
++		       }
++	       }
+                break;
+        }
+        default:
+-- 
+2.34.1
+
