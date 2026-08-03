@@ -4,7 +4,8 @@ DESCRIPTION = "Service to detect I3C and I2C devices on BMC"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/i3c-hub-detector.git;protocol=ssh;branch=main"
+# SRCREV lives on oks-main, not main
+SRC_URI = "git://git.ami.com/core/ami-bmc/one-tree/intel/firmware.bmc.openbmc.applications.i3c-hub-detector.git;protocol=https;branch=oks-main"
 SRCREV = "a2ff2a01ff1a249232dcc00956ddf9c4dc03611d"
 
 S = "${UNPACKDIR}/git"

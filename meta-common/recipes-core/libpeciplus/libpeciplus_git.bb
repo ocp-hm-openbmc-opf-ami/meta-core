@@ -6,7 +6,7 @@ PV = "0.1+git${SRCPV}"
 
 DEPENDS:append = " mctpwplus sdbusplus phosphor-logging"
 
-SRC_URI = "git://git@github.com/intel-collab/firmware.bmc.openbmc.libraries.libpeciplus.git;protocol=ssh;branch=main"
+SRC_URI = "git://git.ami.com/core/ami-bmc/one-tree/core/firmware.bmc.openbmc.libraries.libpeciplus.git;protocol=https;branch=main"
 SRCREV = "e2eb3f012d0ab5427f355bc83ef1f3d07e36d6c4"
 
 PACKAGECONFIG ??= ""
