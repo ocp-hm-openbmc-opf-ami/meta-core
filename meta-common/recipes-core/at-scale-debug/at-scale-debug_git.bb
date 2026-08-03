@@ -12,8 +12,10 @@ DEPENDS = "sdbusplus openssl libpam libgpiod safec"
 
 do_configure[depends] += "virtual/kernel:do_shared_workdir"
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/firmware.bmc.openbmc.applications.at-scale-debug.git;protocol=https;branch=main"
-SRCREV = "3dc10956b1769aa64ce63341a9f62ba7c46204a0"
+SRC_URI:bhs-features = "git://git.ami.com/core/ami-bmc/one-tree/intel/firmware.bmc.openbmc.applications.at-scale-debug.git;protocol=ssh;branch=main"
+SRC_URI:oks-features = "git://git.ami.com/core/ami-bmc/one-tree/intel/firmware.bmc.openbmc.applications.at-scale-debug.git;protocol=ssh;branch=main"
+SRCREV:bhs-features = "79def54862a26bedbbb340f72e8dca050bc91c3f"
+SRCREV:oks-features = "3dc10956b1769aa64ce63341a9f62ba7c46204a0"
 
 inherit useradd
 
@@ -34,14 +36,16 @@ CFLAGS:append = " -I ${STAGING_KERNEL_DIR}/include"
 
 # Copying the depricated header from kernel as a temporary fix to resolve build breaks.
 # It should be removed later after fixing the header dependency in this repository.
-SRC_URI += "file://asm/rwonce.h"
+SRC_URI:bhs-features += "file://asm/rwonce.h"
+SRC_URI:oks-features += "file://asm/rwonce.h"
 do_configure:prepend() {
     cp -r ${UNPACKDIR}/asm ${S}/asm
 }
 CFLAGS:append = " -I ${S}"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI += "file://CtlASD.sh"
+SRC_URI:bhs-features += "file://CtlASD.sh"
+SRC_URI:oks-features += "file://CtlASD.sh"
 
 localdir = "/usr/local"
 mybindir = "${localdir}/bin"
