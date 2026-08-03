@@ -15,8 +15,10 @@ SRC_URI:bhs-features += " \
     file://002_OT-12593_fixJtagTestFailed.patch \
     file://003_OT-12607-fixCoverityIssue.patch \
     file://004_OT-20873_ClangFormat \
+    file://005_OT-21154-fixCoverity.patch \
 "
 
 SRC_URI:oks-features += " \
     file://001_ASD-integration.patch \
+    file://005_OT-21154-fixCoverity.patch \
 "

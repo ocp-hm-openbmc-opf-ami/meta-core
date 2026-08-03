@@ -1,0 +1,52 @@
+From e6bd4229bbc93ba0ba77dd04e5d6d52c6d9ab00b Mon Sep 17 00:00:00 2001
+From: rajamanickems <rajamanickams@ami.com>
+Date: Fri, 26 Jun 2026 09:57:41 +0000
+Subject: [PATCH 206/206] coverity fixes
+
+---
+ server/asd_target_interface.c | 2 +-
+ target/asd_server_interface.c | 2 +-
+ target/dbus_helper.c          | 1 +
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/server/asd_target_interface.c b/server/asd_target_interface.c
+index 75bb9a3..4789d90 100644
+--- a/server/asd_target_interface.c
++++ b/server/asd_target_interface.c
+@@ -130,7 +130,7 @@ void asd_api_target_log(ASD_LogLevel level, ASD_LogStream stream,
+                      ASD_LogOption options, const char* format, ...)
+ {
+     char string[MAX_LOG_SIZE];
+-    va_list args;
++    va_list args = {0};
+     va_start(args, format);
+     vsprintf_s(string, sizeof(string), format, args);
+     asd_target_log(level, stream, options, string);
+diff --git a/target/asd_server_interface.c b/target/asd_server_interface.c
+index b416868..d3ec08c 100644
+--- a/target/asd_server_interface.c
++++ b/target/asd_server_interface.c
+@@ -110,7 +110,7 @@ void asd_api_server_log(ASD_LogLevel level, ASD_LogStream stream,
+                         ASD_LogOption options, const char* format, ...)
+ {
+     char string[MAX_LOG_SIZE];
+-    va_list args;
++    va_list args = {0};
+     va_start(args, format);
+     vsprintf_s(string, sizeof(string), format, args);
+     asd_server_log(level, stream, options, string);
+diff --git a/target/dbus_helper.c b/target/dbus_helper.c
+index adbe2cb..60b835c 100644
+--- a/target/dbus_helper.c
++++ b/target/dbus_helper.c
+@@ -963,6 +963,7 @@ STATUS dbus_read_i3c_ownership(const Dbus_Handle* state, I3c_Ownership* owner)
+         ASD_log(ASD_LogLevel_Error, stream, option,
+                 "sd_bus_get_property_trivial failed to read IsBmcOwner %d",
+                 retcode);
++	sd_bus_error_free(&error);
+         return ST_ERR;
+     }
+     ASD_log(ASD_LogLevel_Debug, stream, option,
+-- 
+2.43.0
+
