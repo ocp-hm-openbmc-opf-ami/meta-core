@@ -4,13 +4,13 @@ Date: Tue, 16 Sep 2025 05:18:09 -0400
 Subject: [PATCH] update aspeed espi mm i to latest intel bkc
 
 ---
- drivers/soc/aspeed/aspeed-espi-mmbi.c | 81 ++++++++++++++++++---------
+ drivers/soc/aspeed/espi/aspeed-espi-mmbi.c | 81 ++++++++++++++++++---------
  1 file changed, 53 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/soc/aspeed/aspeed-espi-mmbi.c b/drivers/soc/aspeed/aspeed-espi-mmbi.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
 index 7b9887eee157..96f79189a6b8 100644
---- a/drivers/soc/aspeed/aspeed-espi-mmbi.c
-+++ b/drivers/soc/aspeed/aspeed-espi-mmbi.c
+--- a/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
 @@ -230,9 +230,9 @@ static int get_b2h_avail_buf_len(struct aspeed_mmbi_channel *channel,
  		hrop.b2h_wp, hrop.h2b_rp);
  

@@ -4,13 +4,13 @@ Date: Wed, 17 Dec 2025 20:56:49 +0530
 Subject: [PATCH] kernel coverity fix
 
 ---
- drivers/soc/aspeed/aspeed-espi-oob.c | 1 +
+ drivers/soc/aspeed/espi/aspeed-espi-oob.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/aspeed/aspeed-espi-oob.c b/drivers/soc/aspeed/aspeed-espi-oob.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-oob.c b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 index ca9c362c897d..7c3ca5afafd8 100644
---- a/drivers/soc/aspeed/aspeed-espi-oob.c
-+++ b/drivers/soc/aspeed/aspeed-espi-oob.c
+--- a/drivers/soc/aspeed/espi/aspeed-espi-oob.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 @@ -418,6 +418,7 @@ static int aspeed_espi_oob_dma_alloc(struct device *dev, struct aspeed_espi_oob
  			return -ENOMEM;
  		}
