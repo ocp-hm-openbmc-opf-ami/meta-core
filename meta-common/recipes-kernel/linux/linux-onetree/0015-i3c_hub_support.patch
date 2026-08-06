@@ -6645,7 +6645,7 @@ index 5a6391698206..3a7d96968688 100644
  };
  
  static u8 even_parity(u8 p)
-@@ -387,139 +556,163 @@ static bool dw_i3c_master_supports_ccc_cmd(struct i3c_master_controller *m,
+@@ -387,139 +387,163 @@ static bool dw_i3c_master_supports_ccc_cmd(struct i3c_master_controller *m,
  static inline struct dw_i3c_master *
  to_dw_i3c_master(struct i3c_master_controller *master)
  {
@@ -6786,17 +6786,17 @@ index 5a6391698206..3a7d96968688 100644
 +static int dw_i3c_master_disable(struct dw_i3c_master *master)
  {
 -	u32 status;
--	u32 halt_state = CM_TFR_STS_MASTER_HALT;
 -	int ret;
 +	int ret = 0;
  
--	if (master->base.target)
--		halt_state = CM_TFR_STS_SLAVE_HALT;
+-	writel(readl(master->regs + DEVICE_CTRL) | DEV_CTRL_RESUME,
+-	       master->regs + DEVICE_CTRL);
 +	if (master->base.target && master->platform_ops && master->platform_ops->isolate_scl_sda)
 +		master->platform_ops->isolate_scl_sda(master, true);
  
--	writel(readl(master->regs + DEVICE_CTRL) | DEV_CTRL_RESUME,
--	       master->regs + DEVICE_CTRL);
+-	ret = readl_poll_timeout_atomic(master->regs + DEVICE_CTRL, status,
+-					!(status & DEV_CTRL_RESUME),
+-					10, 1000000);
 +	writel(readl(master->regs + DEVICE_CTRL) & ~DEV_CTRL_ENABLE, master->regs + DEVICE_CTRL);
 +
 +	if (master->base.target) {
@@ -6808,10 +6808,7 @@ index 5a6391698206..3a7d96968688 100644
 +			dev_warn(master->dev, "Failed to disable controller");
 +			ret = -EACCES;
 +		}
- 
--	ret = readl_poll_timeout_atomic(master->regs + PRESENT_STATE, status,
--					FIELD_GET(CM_TFR_STS, status) != halt_state,
--					10, 1000000);
++
 +		if (master->platform_ops && master->platform_ops->isolate_scl_sda)
 +			master->platform_ops->isolate_scl_sda(master, false);
 +	}
@@ -6845,8 +6842,16 @@ index 5a6391698206..3a7d96968688 100644
 -		halt_state = CM_TFR_STS_SLAVE_HALT;
 +	writel(readl(master->regs + DEVICE_CTRL) | DEV_CTRL_ENABLE, master->regs + DEVICE_CTRL);
  
--	if (by_sw)
+-	if (by_sw) {
 -		dw_i3c_master_abort(master);
+-		ret = readl_poll_timeout_atomic(master->regs + DEVICE_CTRL, status,
+-						!(status & DEV_CTRL_ABORT),
+-						10, 1000000);
+-	} else {
+-		ret = readl_poll_timeout_atomic(master->regs + PRESENT_STATE, status,
+-						FIELD_GET(CM_TFR_STS, status) == halt_state,
+-						10, 1000000);
+-	}
 +	if (master->base.target) {
 +		wait_enable_us =
 +			DIV_ROUND_UP(master->timings.i3c_core_period *
@@ -6863,17 +6868,14 @@ index 5a6391698206..3a7d96968688 100644
 +			goto release_scl_sda;
 +		}
  
--	ret = readl_poll_timeout_atomic(master->regs + PRESENT_STATE, status,
--					FIELD_GET(CM_TFR_STS, status) == halt_state,
--					10, 1000000);
-+		if (master->platform_ops && master->platform_ops->gen_stop_to_internal)
-+			master->platform_ops->gen_stop_to_internal(master);
- 
 -	if (ret)
 -		dev_err(&master->base.dev,
 -			"Enter halt state failed: %d %#x %#x\n", ret,
 -			readl(master->regs + PRESENT_STATE),
 -			readl(master->regs + QUEUE_STATUS_LEVEL));
++		if (master->platform_ops && master->platform_ops->gen_stop_to_internal)
++			master->platform_ops->gen_stop_to_internal(master);
++
 +release_scl_sda:
 +		if (master->platform_ops && master->platform_ops->isolate_scl_sda)
 +			master->platform_ops->isolate_scl_sda(master, false);

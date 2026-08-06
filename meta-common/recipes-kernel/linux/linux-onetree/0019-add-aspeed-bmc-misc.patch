@@ -30,14 +30,15 @@ index c82cb1f02a8e..e7df08803fc0 100644
  	tristate "ASPEED BMC Device"
  
 diff --git a/drivers/soc/aspeed/Makefile b/drivers/soc/aspeed/Makefile
-index c454b72131a4..2931b7f9bc65 100644
+index 6476a4866a54..b864e5f5f111 100644
 --- a/drivers/soc/aspeed/Makefile
 +++ b/drivers/soc/aspeed/Makefile
-@@ -29,3 +29,4 @@ obj-$(CONFIG_ASPEED_ESPI_SLAVE)         += aspeed-espi.o
- aspeed-espi-y := aspeed-espi-slave.o aspeed-espi-oob.o
- obj-$(CONFIG_ASPEED_ESPI_MMBI)          += aspeed-espi-mmbi.o
- obj-$(CONFIG_ASPEED_LPC_SIO)          		+= aspeed-lpc-sio.o
-+obj-$(CONFIG_ASPEED_BMC_MISC)           += aspeed-bmc-misc.o
+@@ -22,4 +22,5 @@ obj-$(CONFIG_ASPEED_DISP_INTF)		+= aspeed-disp-intf.o
+ obj-$(CONFIG_ASPEED_PCIE_MMBI)		+= aspeed-pcie-mmbi.o
+ obj-$(CONFIG_ASPEED_MBOX)		+= aspeed-mbox.o
+ obj-y					+= espi/
+ obj-$(CONFIG_ASPEED_LPC_SIO)		+= aspeed-lpc-sio.o
++obj-$(CONFIG_ASPEED_BMC_MISC)		+= aspeed-bmc-misc.o
 diff --git a/drivers/soc/aspeed/aspeed-bmc-misc.c b/drivers/soc/aspeed/aspeed-bmc-misc.c
 new file mode 100644
 index 000000000000..4aad3129f793

@@ -4,16 +4,16 @@ Date: Sun, 22 Mar 2026 13:55:32 -0400
 Subject: [PATCH] Update Intel Espi Driver to Latest BKC
 
 ---
- drivers/soc/aspeed/aspeed-espi-oob.c   | 80 +++++++++++++++++++++++---
- drivers/soc/aspeed/aspeed-espi-rtc.h   | 23 ++++++++
- drivers/soc/aspeed/aspeed-espi-slave.c | 14 ++++-
+ drivers/soc/aspeed/espi/aspeed-espi-oob.c   | 80 +++++++++++++++++++++++---
+ drivers/soc/aspeed/espi/aspeed-espi-rtc.h   | 23 ++++++++
+ drivers/soc/aspeed/espi/aspeed-espi-slave.c | 14 ++++-
  3 files changed, 105 insertions(+), 12 deletions(-)
- create mode 100644 drivers/soc/aspeed/aspeed-espi-rtc.h
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-rtc.h
 
-diff --git a/drivers/soc/aspeed/aspeed-espi-oob.c b/drivers/soc/aspeed/aspeed-espi-oob.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-oob.c b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 index 7c3ca5afafd8..24be80f10360 100644
---- a/drivers/soc/aspeed/aspeed-espi-oob.c
-+++ b/drivers/soc/aspeed/aspeed-espi-oob.c
+--- a/drivers/soc/aspeed/espi/aspeed-espi-oob.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 @@ -11,6 +11,7 @@
  
  #include "aspeed-espi-ctrl.h"
@@ -143,11 +143,11 @@ index 7c3ca5afafd8..24be80f10360 100644
  	return espi_oob;
  }
  
-diff --git a/drivers/soc/aspeed/aspeed-espi-rtc.h b/drivers/soc/aspeed/aspeed-espi-rtc.h
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-rtc.h b/drivers/soc/aspeed/espi/aspeed-espi-rtc.h
 new file mode 100644
 index 000000000000..f59f8ad5fd24
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-rtc.h
++++ b/drivers/soc/aspeed/espi/aspeed-espi-rtc.h
 @@ -0,0 +1,23 @@
 +/* SPDX-License-Identifier: GPL-2.0+
 + *
@@ -172,10 +172,10 @@ index 000000000000..f59f8ad5fd24
 +#endif
 +
 +#endif /* ASPEED_ESPI_RTC_H */
-diff --git a/drivers/soc/aspeed/aspeed-espi-slave.c b/drivers/soc/aspeed/aspeed-espi-slave.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-slave.c b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
 index 1ce1b614ab48..b8f92ef120ab 100644
---- a/drivers/soc/aspeed/aspeed-espi-slave.c
-+++ b/drivers/soc/aspeed/aspeed-espi-slave.c
+--- a/drivers/soc/aspeed/espi/aspeed-espi-slave.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
 @@ -88,7 +88,7 @@ static void aspeed_espi_sys_event(struct aspeed_espi *priv)
  					  ASPEED_ESPI_SYSEVT_OOB_RST_ACK, 0);
  		dev_dbg(priv->dev, "SYSEVT_OOB_RST_WARN: acked\n");

@@ -4,25 +4,25 @@ Date: Sun, 14 Sep 2025 10:14:11 -0400
 Subject: [PATCH] intel espi and lpc sio driver
 
 ---
- drivers/soc/aspeed/aspeed-espi-ctrl.h  |  337 +++++++
- drivers/soc/aspeed/aspeed-espi-mmbi.c  | 1227 ++++++++++++++++++++++++
- drivers/soc/aspeed/aspeed-espi-oob.c   |  488 ++++++++++
- drivers/soc/aspeed/aspeed-espi-oob.h   |   71 ++
- drivers/soc/aspeed/aspeed-espi-slave.c |  564 +++++++++++
+ drivers/soc/aspeed/espi/aspeed-espi-ctrl.h  |  337 +++++++
+ drivers/soc/aspeed/espi/aspeed-espi-mmbi.c  | 1227 ++++++++++++++++++++++++
+ drivers/soc/aspeed/espi/aspeed-espi-oob.c   |  488 ++++++++++
+ drivers/soc/aspeed/espi/aspeed-espi-oob.h   |   71 ++
+ drivers/soc/aspeed/espi/aspeed-espi-slave.c |  564 +++++++++++
  drivers/soc/aspeed/aspeed-lpc-sio.c    |  437 +++++++++
  6 files changed, 3124 insertions(+)
- create mode 100644 drivers/soc/aspeed/aspeed-espi-ctrl.h
- create mode 100644 drivers/soc/aspeed/aspeed-espi-mmbi.c
- create mode 100644 drivers/soc/aspeed/aspeed-espi-oob.c
- create mode 100644 drivers/soc/aspeed/aspeed-espi-oob.h
- create mode 100644 drivers/soc/aspeed/aspeed-espi-slave.c
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-ctrl.h
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-oob.c
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-oob.h
+ create mode 100644 drivers/soc/aspeed/espi/aspeed-espi-slave.c
  create mode 100644 drivers/soc/aspeed/aspeed-lpc-sio.c
 
-diff --git a/drivers/soc/aspeed/aspeed-espi-ctrl.h b/drivers/soc/aspeed/aspeed-espi-ctrl.h
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-ctrl.h b/drivers/soc/aspeed/espi/aspeed-espi-ctrl.h
 new file mode 100644
 index 000000000000..3e9dd33b2fb0
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-ctrl.h
++++ b/drivers/soc/aspeed/espi/aspeed-espi-ctrl.h
 @@ -0,0 +1,337 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
@@ -361,11 +361,11 @@ index 000000000000..3e9dd33b2fb0
 +	 ASPEED_ESPI_INT_EN_FLASH_RX_CMPLT)
 +
 +#endif
-diff --git a/drivers/soc/aspeed/aspeed-espi-mmbi.c b/drivers/soc/aspeed/aspeed-espi-mmbi.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
 new file mode 100644
 index 000000000000..7b9887eee157
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-mmbi.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
 @@ -0,0 +1,1227 @@
 +// SPDX-License-Identifier: GPL-2.0
 +// Copyright (c) 2021, Intel Corporation.
@@ -1594,11 +1594,11 @@ index 000000000000..7b9887eee157
 +MODULE_AUTHOR("AppaRao Puli <apparao.puli@intel.com>");
 +MODULE_DESCRIPTION("MMBI Driver");
 +MODULE_LICENSE("GPL v2");
-diff --git a/drivers/soc/aspeed/aspeed-espi-oob.c b/drivers/soc/aspeed/aspeed-espi-oob.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-oob.c b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 new file mode 100644
 index 000000000000..ca9c362c897d
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-oob.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
 @@ -0,0 +1,488 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
@@ -2088,11 +2088,11 @@ index 000000000000..ca9c362c897d
 +	mutex_destroy(&espi_oob->get_rx_mtx);
 +	misc_deregister(&espi_oob->mdev);
 +}
-diff --git a/drivers/soc/aspeed/aspeed-espi-oob.h b/drivers/soc/aspeed/aspeed-espi-oob.h
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-oob.h b/drivers/soc/aspeed/espi/aspeed-espi-oob.h
 new file mode 100644
 index 000000000000..ee5fb3d09770
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-oob.h
++++ b/drivers/soc/aspeed/espi/aspeed-espi-oob.h
 @@ -0,0 +1,71 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
@@ -2165,11 +2165,11 @@ index 000000000000..ee5fb3d09770
 +void aspeed_espi_oob_free(struct device *dev, struct aspeed_espi_oob *espi_oob);
 +
 +#endif
-diff --git a/drivers/soc/aspeed/aspeed-espi-slave.c b/drivers/soc/aspeed/aspeed-espi-slave.c
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-slave.c b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
 new file mode 100644
 index 000000000000..1ce1b614ab48
 --- /dev/null
-+++ b/drivers/soc/aspeed/aspeed-espi-slave.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
 @@ -0,0 +1,564 @@
 +// SPDX-License-Identifier: GPL-2.0
 +// Copyright (c) 2015-2019, Intel Corporation.
