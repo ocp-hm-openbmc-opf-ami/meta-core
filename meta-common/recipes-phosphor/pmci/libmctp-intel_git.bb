@@ -14,4 +14,4 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=0d30807bb7a4f16d36e96b78f9ed8fae"
 
 inherit cmake
 
-DEPENDS += "i2c-tools"
+DEPENDS += "i2c-tools json-c"
