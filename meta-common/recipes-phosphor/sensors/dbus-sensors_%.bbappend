@@ -4,7 +4,7 @@ PROJECT_SRC_DIR := "${THISDIR}/${PN}"
 # The URI is required for the autobump script but keep it commented
 # to not override the upstream value
 # SRC_URI = "git://github.com/openbmc/dbus-sensors.git;branch=master;protocol=https"
-SRCREV = "ae4639667132e9bca62277815f0dca5c77c0b887"
+SRCREV = "60cb7bf4009a1dbced516b7ea802b5de22eeef5a"
 
 # The below patch changes are moved into internal dbus-sensors repo
 # so, not required to apply the below patches

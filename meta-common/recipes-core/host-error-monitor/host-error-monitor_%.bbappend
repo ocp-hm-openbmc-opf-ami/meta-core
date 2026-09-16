@@ -3,7 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 # The URI is required for the autobump script but keep it commented
 # to not override the upstream value
 # SRC_URI  = "git://github.com/openbmc/host-error-monitor;branch=master;protocol=https"
-SRCREV = "58fa67cb3c299c3c3d82e847ecd109655043c279"
+SRCREV = "1a5a6461a1e9bd551f8bebdb1d3051565dbc0581"
 inherit pkgconfig
 PACKAGECONFIG[send-to-logger] = ""
 # PACKAGECONFIG:remove += "send-to-logger"
