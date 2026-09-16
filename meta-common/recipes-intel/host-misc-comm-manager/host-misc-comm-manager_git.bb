@@ -12,6 +12,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/host-misc-comm-manager.git;protocol=https;branch=main"
 
 SRCREV = "0fc4b83e3ec932708a315459315ae8c00192ca46"
+SRCREV:bhs-features = "d906509ca6a87e60c8f7ca5ee91170e438ff8a7c"
 
 inherit cmake systemd pkgconfig
 SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.Host.Misc.Manager.service"

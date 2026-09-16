@@ -11,9 +11,13 @@ S = "${UNPACKDIR}/git"
 
 PV = "1.0+git${SRCPV}"
 
-OECMAKE_SOURCEPATH = "${S}"
+OECMAKE_SOURCEPATH:bhs-features = "${S}"
 
-inherit meson pkgconfig systemd
+INHERITMCTPD = " meson pkgconfig systemd "
+
+INHERITMCTPD:bhs-features = " cmake pkgconfig systemd "
+
+inherit ${INHERITMCTPD}
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
