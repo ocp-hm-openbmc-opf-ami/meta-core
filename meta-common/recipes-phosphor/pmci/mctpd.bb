@@ -5,7 +5,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/mctpd.git;protocol=https;branch=main"
-SRCREV = "d104dfa8e4d4c1651a2fe98c06df89bfe011630f"
+SRCREV = "18a51b335cba79a36065ce4533487482e1c7f8f5"
 
 S = "${UNPACKDIR}/git"
 
