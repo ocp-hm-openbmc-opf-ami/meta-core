@@ -3,7 +3,7 @@ DESCRIPTION = "The Node Manager Proxy provides a simple interface for communicat
 with Management Engine via IPMB"
 
 SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/node-manager-proxy.git;protocol=https;branch=main"
-SRCREV = "3a1244c692c250b843546eb5fb6750c5180e5c43"
+SRCREV = "9656227fb50461e9b7449b3231ea1ccc24093a19"
 PV = "0.1+git${SRCPV}"
 
 LICENSE = "Apache-2.0"

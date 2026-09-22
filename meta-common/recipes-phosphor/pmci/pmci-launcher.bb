@@ -5,7 +5,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/pmci-launcher.git;protocol=https;branch=main"
-SRCREV = "5f142da424b411e620507d03a3c3290ea2ecbfb9"
+SRCREV = "2d14ec9114beb25d7b1ddc3a02c5a4f965435aa3"
 
 S = "${UNPACKDIR}/git"
 

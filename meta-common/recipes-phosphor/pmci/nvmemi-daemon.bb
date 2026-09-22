@@ -9,7 +9,7 @@ SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/nvme-mi-daemon.git;protoc
 SRC_URI:append =  " file://0001-add-cmath-header.patch \
 		    file://0002-fix-mctpwplus-api.patch "
 
-SRCREV = "dc09e309ac10a17e59c92308a99b78de72924c25"
+SRCREV = "ffb6221011e02d049e76cd939260498c65f1d795"
 S = "${UNPACKDIR}/git"
 PV = "1.0+git${SRCPV}"
 
