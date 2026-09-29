@@ -1,7 +1,7 @@
 SUMMARY = "Virtual Media Service"
 DESCRIPTION = "Virtual Media Service"
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/virtual-media.git;protocol=https;branch=main"
+SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.virtual-media.git;protocol=ssh;branch=main"
 SRCREV = "9cfeb2ee9169dbb44894364c497017b43a1a3f02"
 
 S = "${UNPACKDIR}/git"

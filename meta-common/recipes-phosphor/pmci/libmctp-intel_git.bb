@@ -1,8 +1,7 @@
 SUMMARY = "libmctp:intel"
 DESCRIPTION = "Implementation of MCTP(DMTF DSP0236)"
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/libmctp.git;protocol=https;branch=main"
-# Previous pin 14b71e2fc1a679cb21fb59efe9f5cbfae3b5d579 no longer exists on any branch upstream (history rewritten); repinned to current main tip.
+SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.libraries.libmctp.git;protocol=ssh;branch=main"
 SRCREV = "823b18fbf9d9802a40e1a2800a9f14986209d5cc"
 
 S = "${UNPACKDIR}/git"
@@ -14,4 +13,4 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=0d30807bb7a4f16d36e96b78f9ed8fae"
 
 inherit cmake
 
-DEPENDS += "i2c-tools json-c"
+DEPENDS += "i2c-tools"

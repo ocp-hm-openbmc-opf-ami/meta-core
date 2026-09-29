@@ -9,7 +9,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/provisioning-mode-manager.git;protocol=https;branch=main"
+SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.provisioning-mode-manager.git;protocol=ssh;branch=main"
 
 SRCREV = "88352415d8e5ac683ac8798fbb9cd9e1acac1347"
 
