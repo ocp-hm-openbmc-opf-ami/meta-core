@@ -2,7 +2,7 @@
 # # The URI is required for the autobump script but keep it commented
 # to not override the upstream value
 # SRC_URI = "git://github.com/openbmc/webui-vue.git;branch=master;protocol=https"
-SRCREV = "4976bc3a40f5743fa003c1b180447391a454b8f5"
+SRCREV = "ad043f50047fc4af5c46480ebf04b7be5d9d4bc0"
 
 FILESEXTRAPATHS:append := "${THISDIR}/${PN}:"
 SRC_URI += " \
