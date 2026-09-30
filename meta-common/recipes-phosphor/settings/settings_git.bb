@@ -1,6 +1,6 @@
 SUMMARY = "Settings"
 
-SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.settings-manager.git;protocol=ssh;branch=main"
+SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/settings-manager.git;protocol=https;branch=main"
 SRCREV = "aea3e2e18f2f70afe13821ee414f2a5c2cac427f"
 PV = "0.1+git${SRCPV}"
 

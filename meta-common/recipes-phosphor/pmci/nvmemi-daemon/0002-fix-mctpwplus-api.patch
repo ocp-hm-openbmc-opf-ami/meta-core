@@ -5,6 +5,8 @@ Subject: [PATCH] Fix mctpwplus API changes in main.cpp
 - Update endpoint map iteration from getEndpointMap() to getEndpointMapExtended()
 - Update Event struct usage from evt.eid to evt.deviceId.mctpEID()
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  main.cpp | 11 ++++++-----
  1 file changed, 6 insertions(+), 5 deletions(-)

@@ -15,7 +15,7 @@ Check the watchdog pre-timeout interrupt in below:
 https://BMCIP/redfish/v1/Systems/system/LogServices/EventLog/Entries
 
 Signed-off-by: Ren Yu <yux.ren@intel.com>
-Upstream-Status: Pending
+Upstream-Status: Inappropriate [Intel specific change]
 ---
  app/watchdog.cpp         | 47 ++++++++++++++++++++++++++++++++++++++++
  app/watchdog_service.cpp |  6 +++++

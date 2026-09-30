@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 14 Sep 2025 09:40:36 -0400
 Subject: [PATCH] adding intel hwmon driver
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/hwmon/Kconfig               |   90 ++
  drivers/hwmon/Makefile              |    6 +

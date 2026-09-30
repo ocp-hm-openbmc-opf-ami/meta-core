@@ -4,7 +4,7 @@ DESCRIPTION = "Implementation of NVMe MI daemon"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.nvme-mi-daemon.git;protocol=ssh;branch=main"
+SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/nvme-mi-daemon.git;protocol=https;branch=main"
 
 SRC_URI:append =  " file://0001-add-cmath-header.patch \
 		    file://0002-fix-mctpwplus-api.patch "

@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 14 Sep 2025 11:21:25 -0400
 Subject: [PATCH] fix peci driver build error
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/peci-legacy/busses/peci-aspeed.c | 11 +++++++++--
  drivers/peci-legacy/peci-dev.c           |  2 +-

@@ -4,6 +4,7 @@ Date: Thu, 12 Sep 2024 11:16:03 +0530
 Subject: [PATCH 01/19] Ported PECI driver support from INTEL & AMI.
 
 Signed-off-by: saikumaru <saikumaru@ami.com>
+Upstream-Status: Backport [ported from Intel and AMI source trees]
 ---
  drivers/Kconfig                          |    4 +
  drivers/mfd/intel-peci-client.c          |  209 ++
