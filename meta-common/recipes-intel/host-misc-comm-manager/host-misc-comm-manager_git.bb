@@ -9,7 +9,7 @@ S = "${UNPACKDIR}/git"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.host-misc-comm-manager;protocol=ssh;branch=main"
+SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/host-misc-comm-manager.git;protocol=https;branch=main"
 
 SRCREV = "21a696e9adb4a7349421880a5866a52b39f5de09"
 SRCREV:bhs-features = "d906509ca6a87e60c8f7ca5ee91170e438ff8a7c"

@@ -12,6 +12,7 @@ Tested:
     successfully and updated
 
 Signed-off-by: PavanKumarIntel <pavanx.kumar.martha@intel.com>
+Upstream-Status: Backport [OneTree 1.2 OpenBMC LF and Intel sync]
 ---
  src/firmware-update.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

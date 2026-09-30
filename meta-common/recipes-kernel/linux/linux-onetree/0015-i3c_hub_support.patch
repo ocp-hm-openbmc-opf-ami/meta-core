@@ -4,6 +4,7 @@ Date: Wed, 6 May 2026 17:20:10 +0800
 Subject: [PATCH] add missing patch for ot
 
 Signed-off-by: desmondwu <desmondwu@ami.com>
+Upstream-Status: Backport [ASPEED SDK v11.02 migration]
 ---
  drivers/i3c/device.c               |  198 +-
  drivers/i3c/i3c-hub.c              | 3019 ++++++++++---------------

@@ -8,6 +8,7 @@ e.g.
 | Error: -mips3 conflicts with the other architecture options, which imply -mips64r2
 
 Signed-off-by: Prithvi A Pai <prithvi.a.pai@intel.com>
+Upstream-Status: Backport [OneTree 1.2 OpenBMC LF and Intel sync]
 ---
  Configure | 9 ---------
  1 file changed, 9 deletions(-)

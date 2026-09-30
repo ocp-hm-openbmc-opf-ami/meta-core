@@ -4,7 +4,7 @@ DESCRIPTION = "Implementation of CXL™ Type 3 Device CCI over MCTP(DTMF DSP0281
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRC_URI = "git://git@github.com/intel-collab/firmware.bmc.openbmc.applications.cxl-cci.git;protocol=ssh;branch=main"
+SRC_URI = "git://git.ami.com/core/ami-bmc/one-tree/core/firmware.bmc.openbmc.applications.cxl-cci.git;protocol=https;branch=main"
 SRCREV = "7332f8ed3333f4fa7d289050d34dc21b0b28e5fa"
 
 S = "${UNPACKDIR}/git"

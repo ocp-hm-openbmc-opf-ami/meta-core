@@ -7,6 +7,7 @@ Add filter to ignore first 0 reading for VR tempertures.
 Consecutive zero readings will still assert low thresholds.
 
 Signed-off-by: Zhikui Ren <zhikui.ren@intel.com>
+Upstream-Status: Backport [OpenBMC_bhs 23.46-0]
 ---
  src/PSUSensor.cpp | 15 ++++++++++++++-
  src/PSUSensor.hpp |  5 ++++-

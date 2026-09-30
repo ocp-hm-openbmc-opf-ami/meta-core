@@ -3,6 +3,7 @@ From: ub18043_230323 <rexlin@ami.com>
 Date: Fri, 12 Dec 2025 15:25:32 +0800
 Subject: [PATCH] Fix the I3C medium Coverity issue about double lock
 
+Upstream-Status: Inappropriate [platform specific]
 ---
  drivers/i3c/master/dw-i3c-master.c | 44 +++++++++++++++++-------------
  1 file changed, 25 insertions(+), 19 deletions(-)

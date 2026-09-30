@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Tue, 16 Sep 2025 05:18:09 -0400
 Subject: [PATCH] update aspeed espi mm i to latest intel bkc
 
+Upstream-Status: Backport [latest Intel BKC]
+
 ---
  drivers/soc/aspeed/espi/aspeed-espi-mmbi.c | 81 ++++++++++++++++++---------
  1 file changed, 53 insertions(+), 28 deletions(-)
