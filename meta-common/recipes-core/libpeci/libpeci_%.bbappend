@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI = "git://git@github.com/ocp-hm-openbmc-opf-ami/libpeci.git;branch=integrate-onetree-latest;protocol=https"
+SRC_URI = "git://git.ami.com/core/ami-bmc/one-tree/core/libpeci.git;branch=main;protocol=https"
 
 SRCREV = "0ae39acf7712ec5b034837dcacef3a8ce6a8c803"
 
