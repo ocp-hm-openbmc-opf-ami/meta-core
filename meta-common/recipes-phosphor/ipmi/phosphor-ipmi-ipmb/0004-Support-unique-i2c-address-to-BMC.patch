@@ -45,6 +45,7 @@ i2cdetect -y 13
 70: -- -- -- -- -- -- -- --
 
 Signed-off-by: pandiarajt <pandiarajt@ami.com>
+Upstream-Status: Backport [f2f55081cf1014d142264d95f18917df6ac1f34a]
 ---
  ipmbbridged.cpp | 35 ++++++++++++++++++++++++++++-------
  1 file changed, 28 insertions(+), 7 deletions(-)

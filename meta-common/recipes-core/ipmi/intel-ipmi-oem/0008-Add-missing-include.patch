@@ -8,6 +8,7 @@ sdbusplus::xyz::openbmc_project::Common::Error.
 
 Change-Id: I185c453def4515a35749f687a57b4f0b6da6deb8
 Signed-off-by: Jason M. Bills <jason.m.bills@intel.com>
+Upstream-Status: Backport [OpenBMC_bhs 23.46-0 sync]
 ---
  src/allowlist-filter.cpp | 1 +
  1 file changed, 1 insertion(+)

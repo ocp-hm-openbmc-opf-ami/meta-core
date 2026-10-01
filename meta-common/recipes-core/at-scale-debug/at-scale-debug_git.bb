@@ -34,6 +34,9 @@ EXTRA_OECMAKE = "-DBUILD_UT=OFF"
 CFLAGS:append = " -I ${STAGING_KERNEL_DIR}/include/uapi"
 CFLAGS:append = " -I ${STAGING_KERNEL_DIR}/include"
 
+# Remap kernel header paths so they don't leak into debug info (buildpaths QA).
+CFLAGS:append = " -ffile-prefix-map=${STAGING_KERNEL_DIR}=${TARGET_DBGSRC_DIR}/kernel"
+
 # Copying the depricated header from kernel as a temporary fix to resolve build breaks.
 # It should be removed later after fixing the header dependency in this repository.
 SRC_URI:bhs-features += "file://asm/rwonce.h"

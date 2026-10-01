@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Wed, 23 Jul 2025 12:39:37 -0400
 Subject: [PATCH] fix for cups context switch
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  peci.c | 14 +++++++-------
  peci.h |  4 +++-

@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Mon, 27 Oct 2025 05:50:11 -0400
 Subject: [PATCH] SDK v09.08  Fixes For PECI
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/peci-legacy/busses/peci-aspeed.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

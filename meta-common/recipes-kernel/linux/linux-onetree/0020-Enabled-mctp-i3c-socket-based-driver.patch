@@ -3,6 +3,8 @@ From: ShengHsiuHuang <ShengHsiuHuang@ami.com>
 Date: Mon, 30 Mar 2026 23:39:40 +0800
 Subject: [PATCH 3/5] Enabled mctp i3c socket based driver
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/i3c/Makefile               |   1 +
  drivers/i3c/mctp-i3c-misc.c        |  11 +

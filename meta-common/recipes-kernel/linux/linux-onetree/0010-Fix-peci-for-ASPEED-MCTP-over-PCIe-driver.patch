@@ -3,6 +3,8 @@ From: MingLunChang <minglunchang@ami.com>
 Date: Thu, 11 Jul 2024 18:14:15 +0800
 Subject: [PATCH] Fix peci for ASPEED MCTP over PCIe driver
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/peci-legacy/busses/peci-mctp.c | 18 ++++++++----------
  1 file changed, 8 insertions(+), 10 deletions(-)

@@ -40,6 +40,7 @@ ipmitool raw 0x3e 0x51 0 0x01 0xb0 0x6 1
 Note: Tested for all possible negative test cases and it works fine.
 
 Signed-off-by: pandiarajt <pandiarajt@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  include/linux/i2c.h | 158 +++++++++++++++++++++++++++++++
  ipmb-channels.json  |   6 ++

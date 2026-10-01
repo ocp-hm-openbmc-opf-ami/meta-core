@@ -4,6 +4,7 @@ Date: Sun, 10 Aug 2025 19:34:00 +0530
 Subject: [PATCH] Intel-aspeed-g6-dtsi-changes
 
 Signed-off-by: Vasanthakumar K <vasanthakumark@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  arch/arm/boot/dts/aspeed/aspeed-g6.dtsi | 36 +++++++++++++++++++++++++
  1 file changed, 36 insertions(+)

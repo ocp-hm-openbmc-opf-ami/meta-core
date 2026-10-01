@@ -6,6 +6,8 @@ Subject: [PATCH] Add HttpPushUriTarget and busy property under software
 This change adds the HttpPushUriTargets and HttpPushUriTargetsBusy D-bus property
 under xyz.openbmc_project.Software.BMC.Updater.
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  item_updater.hpp | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)

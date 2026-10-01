@@ -1,3 +1,5 @@
+Upstream-Status: Backport [migrated from feature branch to main branch for ASD]
+
 diff --git a/target/jtag_handler.c b/target/jtag_handler.c
 index c7afbb2..3fc6fa5 100644
 --- a/target/jtag_handler.c

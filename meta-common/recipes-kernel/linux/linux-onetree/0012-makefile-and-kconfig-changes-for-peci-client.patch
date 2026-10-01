@@ -3,6 +3,8 @@ From: gayathrid <gayathrid@ami.com>
 Date: Tue, 16 Sep 2025 02:12:54 -0400
 Subject: [PATCH] makefile and kconfig changes for peci client
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/mfd/Kconfig  | 18 ++++++++++++++++++
  drivers/mfd/Makefile |  1 +

@@ -1,0 +1,144 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Arjun C R <arjuncr@ami.com>
+Date: Sat, 13 Sep 2026 00:00:00 +0000
+Subject: [PATCH] i3c-hub-detector: support AST2700 mipi-i3c-hci sysfs layout
+
+The detector was written for the AST2600 i3c sysfs convention, where the
+master bus is a child directory named "i3c-N" and every device path
+contains an "i3c-N" component. AST2700 uses the mipi-i3c-hci driver,
+which nests the master bus under the controller as "<addr>.i3cN" (no
+"i3c-N" anywhere) and does not expose an "id" attribute. Consequently,
+even after the controller address map was corrected, every configured
+bus failed with "Root I3C bus entry not found" and no objects were
+published.
+
+Make the path handling layout-independent:
+ - getBusFileName()/findChildHubs(): match "i3c-N" or "<addr>.i3cN".
+ - I3CDevice::init()/findTopmostRootBusNo(): derive the bus number from
+   the "<bus>-<pid>" device directory name instead of an "i3c-N" path
+   component.
+ - findDeviceId(): tolerate the missing "id" attribute.
+
+Upstream-Status: Pending [applied downstream for the intel-ast2700
+MACHINE only; upstream should support the mipi-i3c-hci sysfs layout]
+Signed-off-by: Arjun C R <arjuncr@ami.com>
+---
+ bus/root_bus.cpp      | 11 ++++++++---
+ device/i3c_device.cpp | 25 ++++++++++---------------
+ utils.cpp             | 14 ++++++++++----
+ 3 files changed, 30 insertions(+), 20 deletions(-)
+
+diff --git a/bus/root_bus.cpp b/bus/root_bus.cpp
+--- a/bus/root_bus.cpp
++++ b/bus/root_bus.cpp
+@@ -179,15 +179,21 @@
+             "Device directory path does not exist: " + deviceDirPath.string());
+     }
+ 
+-    std::regex i3cBus("i3c-\\d+$");
++    // AST2600 exposes the master bus as "i3c-N"; AST2700 (mipi-i3c-hci)
++    // nests it under the controller as "<addr>.i3cN". Match either.
++    std::regex i3cBus(R"(i3c-\d+|.*\.i3c\d+)");
+     for (const auto& entry : std::filesystem::directory_iterator(deviceDirPath))
+     {
++        if (!entry.is_directory())
++        {
++            continue;
++        }
+         std::string pathStr = entry.path().filename().string();
+         if (std::regex_match(pathStr, i3cBus))
+         {
+             return entry.path();
+         }
+     }
+ 
+     throw std::runtime_error(
+         "Root I3C bus entry not found: " + deviceDirPath.string());
+@@ -328,7 +328,8 @@
+                             std::shared_ptr<i3c::I3CHub> parentHub,
+                             const Path& parentPath)
+ {
+-    std::regex i3cPattern("i3c-\\d+");
++    // Match AST2600 "i3c-N" downstream buses and AST2700 "<addr>.i3cN".
++    std::regex i3cPattern(R"(i3c-\d+|.*\.i3c\d+)");
+ 
+     for (const auto& entry : std::filesystem::directory_iterator(parentPath))
+     {
+diff --git a/device/i3c_device.cpp b/device/i3c_device.cpp
+--- a/device/i3c_device.cpp
++++ b/device/i3c_device.cpp
+@@ -52,23 +52,18 @@
+ 
+     lg2::info("Initializing I3C device at {PATH}", "PATH", devicePath.string());
+ 
+-    std::string fullPath = devicePath.string();
+-    size_t pos = fullPath.rfind("i3c-");
+-    if (pos == std::string::npos)
+-    {
+-        throw std::runtime_error("No i3c- found in path: " + fullPath);
+-    }
+-
+-    // Move pos 4 characters after "i3c-"
+-    pos += 4;
+-
+-    size_t end = fullPath.find('/', pos);
+-    if (end == std::string::npos)
+-    {
+-        end = fullPath.length();
+-    }
+-    std::string busNumStr = fullPath.substr(pos, end - pos);
+-    int busNumber = std::stoi(busNumStr);
++    // The i3c device directory is named "<bus>-<pid>" on both AST2600 and
++    // AST2700; derive the bus number from it rather than an "i3c-N" path
++    // component, which AST2700's mipi-i3c-hci layout does not expose.
++    std::string deviceName = devicePath.filename().string();
++    size_t dashPos = deviceName.find('-');
++    if (dashPos == std::string::npos)
++    {
++        throw std::runtime_error(
++            "Unexpected i3c device directory name: " + deviceName);
++    }
++    std::string busNumStr = deviceName.substr(0, dashPos);
++    int busNumber = std::stoi(busNumStr);
+     if (busNumber < 0 ||
+         busNumber > static_cast<int>(std::numeric_limits<uint8_t>::max()))
+     {
+diff --git a/utils.cpp b/utils.cpp
+--- a/utils.cpp
++++ b/utils.cpp
+@@ -185,22 +185,28 @@
+ uint64_t findTopmostRootBusNo(const std::filesystem::path& devicePath)
+ {
+     std::string pathStr = devicePath.string();
+-    std::regex i3cRegex("i3c-(\\d+)");
++    // The outermost "<bus>-<pid>" component identifies the topmost (root)
++    // i3c bus; this is layout-independent across AST2600 ("i3c-N") and
++    // AST2700 ("<addr>.i3cN").
++    std::regex i3cRegex(R"((\d+)-[0-9a-f]{11})", std::regex_constants::icase);
+     std::smatch match;
+     if (std::regex_search(pathStr, match, i3cRegex))
+     {
+-        // match[1] contains the first bus number
+         return static_cast<uint64_t>(std::stoull(match[1].str()));
+     }
+     // If not found, return 0 or some error value as appropriate
+     throw std::runtime_error(
+         "No I3C bus number found in path: " + devicePath.string());
+ }
+ 
+ uint8_t findDeviceId(const std::filesystem::path& devicePath)
+ {
+     auto idPath = devicePath / "id";
+-    std::string idStr = readFile(idPath);
+-    // read number from there directly
++    if (!std::filesystem::exists(idPath))
++    {
++        // AST2700's i3c/i3c-hub sysfs does not expose an "id" attribute.
++        return 0;
++    }
++    std::string idStr = readFile(idPath);
+     return static_cast<uint8_t>(std::stoul(idStr, nullptr, 10));
+ }
+
+-- 
+2.34.1
