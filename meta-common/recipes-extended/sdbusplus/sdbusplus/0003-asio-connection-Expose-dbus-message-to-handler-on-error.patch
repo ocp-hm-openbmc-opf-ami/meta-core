@@ -9,6 +9,8 @@ function attempted to access the underlying message, it would throw an
 exception that mapped to a generic error handler. Exposing the dbus
 message enables this function to show the real issue in its response.
 
+Upstream-Status: Pending
+
 Signed-off-by: ramadevi <ramadevip@ami.com>
 ---
  include/sdbusplus/asio/connection.hpp | 17 +++++++++++++----

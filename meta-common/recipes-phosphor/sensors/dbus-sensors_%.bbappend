@@ -68,7 +68,7 @@ do_install:append() {
     install "${srcf}" "${dstf}"
 
 #svc="xyz.openbmc_project.intelcpusensor.service"
-#srcf="${WORKDIR}/10-nice-rules.conf"
+#srcf="${UNPACKDIR}/10-nice-rules.conf"
 #dstf="${D}/etc/systemd/system/${svc}.d/10-nice-rules.conf"
 #mkdir -p "${D}/etc/systemd/system/${svc}.d"
 #install "${srcf}" "${dstf}"
