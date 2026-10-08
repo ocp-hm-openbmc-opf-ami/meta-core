@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Arjun C R <arjuncr@ami.com>
+Date: Sat, 13 Sep 2026 00:00:00 +0000
+Subject: [PATCH] utils: tolerate missing i3c-hub "tp_conf" on AST2700
+
+The AST2700 mipi-i3c-hci i3c-hub sysfs does not expose a "tp_conf"
+(target-port config) attribute, so readTargetPortConfig() threw and
+I3CHub::init() aborted before publishing the hub object - the device on
+a hub-capable bus never appeared on D-Bus. Return an empty config when
+the attribute is absent so the hub is still exposed.
+
+Upstream-Status: Pending [applied downstream for the intel-ast2700
+MACHINE only; upstream should support the mipi-i3c-hci sysfs layout]
+Signed-off-by: Arjun C R <arjuncr@ami.com>
+---
+ utils.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/utils.cpp b/utils.cpp
+--- a/utils.cpp
++++ b/utils.cpp
+@@ -342,6 +342,11 @@
+ std::string readTargetPortConfig(const std::filesystem::path& devicePath)
+ {
+     auto tpConfigPath = devicePath / "tp_conf";
++    if (!std::filesystem::exists(tpConfigPath))
++    {
++        // AST2700's i3c-hub sysfs does not expose "tp_conf".
++        return "";
++    }
+     std::string tpConfig = readFile(tpConfigPath);
+     return tpConfig;
+ }
+-- 
+2.34.1

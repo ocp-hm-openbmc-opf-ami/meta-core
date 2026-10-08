@@ -19,6 +19,7 @@ Tested:
 Same hwmontemp sensors are created with the change.
 
 Signed-off-by: Zhikui Ren <zhikui.ren@intel.com>
+Upstream-Status: Backport [OneTree 2.0 OpenBMC LF and Intel sync]
 Change-Id: I0cf98950faf44b35dc71387a653ba1feeb375cc1
 
 %% original patch: 0017-hwmontempsensor-Handle-failure-to-canonicalize-devic.patch

@@ -3,6 +3,8 @@ From: sivanagalakshmi <sivanagalakshmia@ami.com>
 Date: Thu, 12 Dec 2024 03:47:12 -0500
 Subject: [PATCH] Added_peci_wakeup_support_for_lib_peci
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  peci.c | 24 ++++++++++++++++++++++++
  peci.h |  2 +-

@@ -4,6 +4,7 @@ Date: Mon, 23 Dec 2024 17:31:52 +0530
 Subject: [PATCH] Enabled the RTC driver
 
 Signed-off-by: subraja M <subrajam@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  drivers/rtc/Kconfig        |  10 ++++
  drivers/rtc/Makefile       |   1 +

@@ -12,6 +12,7 @@ are visible over RF. PSYS bios knobs are visible and it is possible to
 set them over redfish.
 
 Signed-off-by: Jatkiewicz, Joanna <joanna.jatkiewicz@intel.com>
+Upstream-Status: Backport [OneTree 1.2 OpenBMC LF and Intel sync]
 ---
  include/biosxml.hpp | 26 ++++++++++++++++++++++----
  1 file changed, 22 insertions(+), 4 deletions(-)

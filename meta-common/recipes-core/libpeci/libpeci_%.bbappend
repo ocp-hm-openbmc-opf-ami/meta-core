@@ -2,7 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI = "git://git.ami.com/core/ami-bmc/one-tree/core/libpeci.git;branch=main;protocol=https"
 
-SRCREV = "c0d6ef4402d7421f1138e5fec48b18732c3303e4"
+SRCREV = "0ae39acf7712ec5b034837dcacef3a8ce6a8c803"
 
 SRC_URI += " \
         file://99-peci.rules \

@@ -11,6 +11,7 @@ Use axios 0.28.1 to resolve these CVEs:
 https://nvd.nist.gov/vuln/detail/CVE-2023-45857
 
 Signed-off-by: Jason M. Bills <jason.m.bills@intel.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  package-lock.json | 16 +++++++++-------
  1 file changed, 9 insertions(+), 7 deletions(-)

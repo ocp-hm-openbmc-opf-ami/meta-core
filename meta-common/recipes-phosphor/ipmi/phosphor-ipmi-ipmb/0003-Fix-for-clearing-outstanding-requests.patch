@@ -22,6 +22,7 @@ Command: busctl call xyz.openbmc_project.Ipmi.Channel.Ipmb
 Response: (iyyyyay) 0 49 0 112 193 0
 
 Signed-off-by: pandiarajt <pandiarajt@ami.com>
+Upstream-Status: Backport [e107bdc375aa23a4c0a3d23978cfe8b378bce09a]
 ---
  ipmbbridged.cpp | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)

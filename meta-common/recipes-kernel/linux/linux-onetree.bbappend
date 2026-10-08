@@ -17,21 +17,20 @@ SRC_URI:append:intel-ast2600 = " file://defconfig \
 				 file://0013-update-aspeed-espi-mmbi-to-latest-intel-bkc.patch \
 				 file://0014-fix-for-peci-coverity.patch \
 				 file://0015-i3c_hub_support.patch \
-				 file://0016-fix-for-host-misc-comm-manager-failed-to-load-aspeed.patch \
 				 file://0017-add-lpc-sio-header.patch \
 				 file://0018-fix-for-lpc-sio-not-loading.patch \
 				 file://0019-add-aspeed-bmc-misc.patch \
 				 file://0020-Enabled-mctp-i3c-socket-based-driver.patch \
 				 file://0021-EID-to-lladdr-mappings-implemented.patch \
 				 file://0022-SDK-v09.08-Fixes-For-PECI.patch \
-                                 file://0023-kernel-aspeed-espi-oob-coverity-fix.patch \
+				 file://0023-kernel-aspeed-espi-oob-coverity-fix.patch \
 				 file://0024-jtagDriver-coverity-fix.patch \
 				 file://intel-i3c-hub.cfg \
-				 file://0023-Fix-the-I3C-medium-Coverity-issue-about-double-lock.patch \
 				 file://0025-disable-logs-and-fix-polling-work-during-rescan.patch \
                                  file://0025-Enable-pass-through-on-GPIOP1-GPIOP3-free.patch \
 				 file://0026-Update-Intel-Espi-Driver-to-Latest-BKC.patch \
-			       "
+				 file://0027-Fix-for-compilation-issue-in-kernel-v6.18.patch \
+                               "
 
 SRC_URI:append:oks-ast2600 = "  file://0027-Adding-intel-bkc-changes-for-uart-routing.patch "
 
