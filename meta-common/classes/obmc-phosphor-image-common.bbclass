@@ -54,7 +54,7 @@ IMAGE_INSTALL:append = " \
 
 IMAGE_INSTALL:remove:oks-features = " peci-pcie "
 
-IMAGE_INSTALL:append:oks-features = " mctp-cmd-tool cxl-cci mmbi-ipmi domain-mapperd "
+IMAGE_INSTALL:append:oks-features = " mmbi-ipmi domain-mapperd "
 
 AF_MCTP_FEATURES = " \
 	mctp \

@@ -5,6 +5,8 @@ Subject: [PATCH] Add missing cmath header
 Add the required <cmath> header to numeric_sensor.cpp to fix compilation
 errors with std::isnan() calls.
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  numeric_sensor.cpp | 1 +
  1 file changed, 1 insertion(+)

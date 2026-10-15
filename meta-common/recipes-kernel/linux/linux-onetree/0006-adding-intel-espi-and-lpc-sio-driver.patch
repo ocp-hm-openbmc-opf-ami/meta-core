@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 14 Sep 2025 10:14:11 -0400
 Subject: [PATCH] intel espi and lpc sio driver
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/soc/aspeed/espi/aspeed-espi-ctrl.h  |  337 +++++++
  drivers/soc/aspeed/espi/aspeed-espi-mmbi.c  | 1227 ++++++++++++++++++++++++

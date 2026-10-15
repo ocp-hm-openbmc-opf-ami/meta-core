@@ -3,6 +3,8 @@ From: leon_lin <leonlin@ami.com>
 Date: Thu, 22 Jan 2026 11:57:52 +0800
 Subject: [PATCH 1/2] Added OpenBMC GCC toolchain, headers, export library
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  CMakeLists.txt | 47 +++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 47 insertions(+)

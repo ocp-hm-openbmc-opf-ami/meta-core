@@ -3,6 +3,8 @@ From: leon_lin <leonlin@ami.com>
 Date: Thu, 29 Jan 2026 12:40:01 +0800
 Subject: [PATCH] Export compiled objects
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  library/spdm_common_lib/CMakeLists.txt               | 5 ++++-
  library/spdm_crypt_lib/CMakeLists.txt                | 5 ++++-

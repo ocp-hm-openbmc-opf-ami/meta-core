@@ -11,6 +11,7 @@ Tested:
 psu sensor service still respond to dbus calls when PMBus hangs.
 
 Signed-off-by: Zhikui Ren <zhikui.ren@intel.com>
+Upstream-Status: Backport [OneTree 2.0 OpenBMC LF and Intel sync]
 ---
  src/PSUSensor.cpp | 15 ++++++++++++---
  1 file changed, 12 insertions(+), 3 deletions(-)

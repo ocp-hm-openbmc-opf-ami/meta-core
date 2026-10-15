@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 14 Sep 2025 10:22:49 -0400
 Subject: [PATCH] Make file and Kconfig for espi and lpc sio
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/soc/aspeed/Kconfig       |  7 +++++++
  drivers/soc/aspeed/Makefile      |  1 +

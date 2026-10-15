@@ -3,6 +3,8 @@ From: malochou <malochou@ami.com>
 Date: Tue, 10 Mar 2026 09:16:14 +0800
 Subject: [PATCH] Enable_pass-through_on_GPIOP1_GPIOP3_free
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c | 17 +++++++
  drivers/pinctrl/aspeed/pinctrl-aspeed.c    | 54 ++++++++++++++++++++++

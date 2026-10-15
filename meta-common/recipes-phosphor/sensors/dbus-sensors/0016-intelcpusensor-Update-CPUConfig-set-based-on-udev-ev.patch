@@ -23,6 +23,7 @@ sysfs.
 
 Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
 Signed-off-by: Oleksandr Shulzhenko <oleksandr.shulzhenko.viktorovych@intel.com>
+Upstream-Status: Backport [OpenBMC_bhs 23.46-0]
 ---
  meson.build                |   2 +
  src/IntelCPUSensorMain.cpp | 139 +++++++++++++++++++++++++++++++++++++

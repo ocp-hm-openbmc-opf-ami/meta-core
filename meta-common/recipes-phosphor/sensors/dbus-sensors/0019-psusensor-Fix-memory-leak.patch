@@ -12,6 +12,7 @@ Tested:
 Memory stay stable with overnight cold reset test.
 
 Signed-off-by: Zhikui Ren <zhikui.ren@intel.com>
+Upstream-Status: Backport [OneTree 2.0 OpenBMC LF and Intel sync]
 Change-Id: If4ec633fd533fdb90c7fc9f655e82bef2616e3f3
 ---
  src/PSUSensorMain.cpp | 39 ++++++++++++++++++---------------------

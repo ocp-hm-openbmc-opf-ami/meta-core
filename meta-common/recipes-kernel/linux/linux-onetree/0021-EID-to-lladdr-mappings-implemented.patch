@@ -3,6 +3,8 @@ From: ShengHsiuHuang <ShengHsiuHuang@ami.com>
 Date: Mon, 30 Mar 2026 23:46:21 +0800
 Subject: [PATCH 4/5] EID to lladdr mappings implemented
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  include/net/mctp.h |   2 +
  net/mctp/af_mctp.c | 177 +++++++++++++++++++++++++++++++++++++++++++++

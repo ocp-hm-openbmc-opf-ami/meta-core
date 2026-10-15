@@ -3,6 +3,8 @@ From: rajamaickems <rajamanickams@ami.com>
 Date: Mon, 21 Jul 2025 19:31:23 +0530
 Subject: [PATCH 310/310] 2700-DCSCM-BHS-Fixes
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  CMakeLists.txt    |   3 +-
  asti3c.c          | 100 +++++++++++++++++++++++++++++++++++++++++++++-

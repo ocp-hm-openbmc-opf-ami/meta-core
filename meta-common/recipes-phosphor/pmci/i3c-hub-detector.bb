@@ -5,6 +5,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 SRC_URI = "git://git@git.ami.com/core/ami-bmc/one-tree/intel/firmware.bmc.openbmc.applications.i3c-hub-detector.git;protocol=ssh;branch=oks-main"
+SRC_URI:append:intel-ast2700 = " file://0001-root_bus-use-AST2700-I3C-controller-base-addresses.patch file://0002-i3c-hub-detector-support-AST2700-mipi-i3c-hci-sysfs.patch file://0003-utils-tolerate-missing-i3c-hub-tp_conf-on-AST2700.patch"
 SRCREV = "a2ff2a01ff1a249232dcc00956ddf9c4dc03611d"
 
 S = "${UNPACKDIR}/git"

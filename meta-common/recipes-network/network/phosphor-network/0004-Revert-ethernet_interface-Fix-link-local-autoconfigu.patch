@@ -44,6 +44,7 @@ Config command.
 
 Change-Id: I272653dca61b96b360f03dfdf00d7ca57b7e0b63
 Signed-off-by: Johnathan Mantey <johnathanx.mantey@intel.com>
+Upstream-Status: Backport [OpenBMC_bhs 23.46-0 sync; reverts 721d8f75fb6d8d22cc4afc11b06288a47a1a600d]
 ---
  src/ethernet_interface.cpp | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)

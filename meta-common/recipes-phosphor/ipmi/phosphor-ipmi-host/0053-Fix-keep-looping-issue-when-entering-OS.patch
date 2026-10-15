@@ -15,7 +15,7 @@ Unit Test:
 normally without keep sending READ EVENT MESSAGE BUFFER command.
     After power on system, enter EFI SHELL, check IPMI can work
 correctly through KCS channel.
-Upstream-Status: Pending
+Upstream-Status: Inappropriate [Intel specific change]
 ---
  host-cmd-manager.cpp | 31 +++++++++++++++++++++----------
  1 file changed, 21 insertions(+), 10 deletions(-)

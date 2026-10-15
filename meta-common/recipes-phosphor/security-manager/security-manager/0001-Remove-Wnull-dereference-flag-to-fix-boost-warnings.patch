@@ -10,6 +10,7 @@ that we cannot fix. Removing this flag while keeping -Werror to
 catch real issues in the project code.
 
 Signed-off-by: Arjun CR <arjuncr@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  CMakeLists.txt | 1 -
  1 file changed, 1 deletion(-)

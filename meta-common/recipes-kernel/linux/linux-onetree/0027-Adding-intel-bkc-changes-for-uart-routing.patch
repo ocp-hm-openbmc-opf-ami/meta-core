@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 22 Mar 2026 13:53:37 -0400
 Subject: [PATCH] Adding intel bkc changes for uart routing
 
+Upstream-Status: Backport [Intel BKC]
+
 ---
  drivers/soc/aspeed/aspeed-uart-routing.c | 68 ++++++++++++++++++------
  1 file changed, 51 insertions(+), 17 deletions(-)

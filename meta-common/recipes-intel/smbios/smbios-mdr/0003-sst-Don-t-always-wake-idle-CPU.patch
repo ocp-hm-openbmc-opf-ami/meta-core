@@ -12,6 +12,7 @@ contexts.
 
 Change-Id: I91435cc0357ab60ca4656e1bc51286e046ae3809
 Signed-off-by: Jonathan Doman <jonathan.doman@intel.com>
+Upstream-Status: Backport [OneTree 1.2 OpenBMC LF and Intel sync]
 ---
  include/speed_select.hpp | 23 ++++++++++++++++++++++-
  src/speed_select.cpp     | 29 +++++++++++++++++------------

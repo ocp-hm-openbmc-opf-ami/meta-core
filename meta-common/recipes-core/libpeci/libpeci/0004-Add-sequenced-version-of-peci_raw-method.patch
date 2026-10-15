@@ -11,6 +11,7 @@ This change adds such sequenced version for method
 peci_raw that for some reason was not implemented before.
 
 Signed-off-by: Zbigniew Kurzynski <zbigniew.kurzynski@intel.com>
+Upstream-Status: Backport [OpenBMC_bhs 23.46-0 sync]
 ---
  peci.c | 38 +++++++++++++++++++++++++++++++-------
  peci.h |  5 +++++

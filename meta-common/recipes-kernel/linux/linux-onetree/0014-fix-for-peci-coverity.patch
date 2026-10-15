@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Tue, 16 Sep 2025 10:19:15 -0400
 Subject: [PATCH] fix for peci coverity
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/peci-legacy/peci-core.c | 7 +++++++
  1 file changed, 7 insertions(+)
