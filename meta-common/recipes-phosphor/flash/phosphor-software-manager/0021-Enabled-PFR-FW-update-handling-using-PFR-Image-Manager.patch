@@ -4,6 +4,7 @@ Date: Fri, 10 Apr 2026 13:39:58 +0530
 Subject: [PATCH] Enabled PFR FW update handling using PFR Image Manager
 
 Signed-off-by: Kirubagharan A S <kirubagharanas@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
 ---
  bmc/image_manager_main.cpp |   4 +
  bmc/meson.build            |  13 +-

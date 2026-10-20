@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 22 Feb 2026 08:08:21 -0500
 Subject: [PATCH] Fix for 2700dcscm build error
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  src/security-manager.cpp | 16 ++++++++--------
  1 file changed, 8 insertions(+), 8 deletions(-)

@@ -3,7 +3,7 @@ From: hmudun1x <hemanthx.kumar.mudunuri@intel.com>
 Date: Thu, 23 Jun 2022 01:33:25 -0700
 Subject: [PATCH] Adding the ACPI agent support to Mdrv2 OEM commands
 
-Upstream-Status: Pending
+Upstream-Status: Inappropriate [Intel specific change]
 ---
  include/smbiosmdrv2.hpp        |   2 +
  include/smbiosmdrv2handler.hpp | 153 +++++++---

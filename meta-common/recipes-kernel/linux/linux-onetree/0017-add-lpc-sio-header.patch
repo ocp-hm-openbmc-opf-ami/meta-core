@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Fri, 19 Sep 2025 05:20:52 -0400
 Subject: [PATCH] add lpc sio header
 
+Upstream-Status: Backport [ASPEED SDK v9.06 (+ selective v9.07) migration]
+
 ---
  include/uapi/linux/aspeed-lpc-sio.h | 46 +++++++++++++++++++++++++++++
  1 file changed, 46 insertions(+)

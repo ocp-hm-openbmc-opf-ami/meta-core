@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Fri, 19 Sep 2025 03:50:18 -0400
 Subject: [PATCH] fix for host-misc-comm-manager failed to load aspeed-lpc-mbox
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/soc/aspeed/aspeed-lpc-mbox.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

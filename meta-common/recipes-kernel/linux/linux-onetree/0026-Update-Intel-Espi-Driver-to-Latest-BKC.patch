@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Sun, 22 Mar 2026 13:55:32 -0400
 Subject: [PATCH] Update Intel Espi Driver to Latest BKC
 
+Upstream-Status: Backport [latest Intel BKC]
+
 ---
  drivers/soc/aspeed/espi/aspeed-espi-oob.c   | 80 +++++++++++++++++++++++---
  drivers/soc/aspeed/espi/aspeed-espi-rtc.h   | 23 ++++++++

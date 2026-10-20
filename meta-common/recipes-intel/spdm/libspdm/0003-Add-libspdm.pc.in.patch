@@ -3,6 +3,8 @@ From: leon_lin <leonlin@ami.com>
 Date: Fri, 23 Jan 2026 09:09:12 +0800
 Subject: [PATCH] Update libspdm.pc.in
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  libspdm.pc.in | 14 +++++++-------
  1 file changed, 7 insertions(+), 7 deletions(-)

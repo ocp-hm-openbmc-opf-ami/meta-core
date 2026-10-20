@@ -3,6 +3,8 @@ From: rajamanickems <rajamanickams@ami.com>
 Date: Fri, 26 Jun 2026 09:57:41 +0000
 Subject: [PATCH 206/206] coverity fixes
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  server/asd_target_interface.c | 2 +-
  target/asd_server_interface.c | 2 +-

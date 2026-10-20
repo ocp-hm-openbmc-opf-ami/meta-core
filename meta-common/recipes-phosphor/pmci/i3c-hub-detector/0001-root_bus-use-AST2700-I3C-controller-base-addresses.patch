@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Arjun C R <arjuncr@ami.com>
+Date: Sat, 13 Sep 2026 00:00:00 +0000
+Subject: [PATCH] root_bus: use AST2700 I3C controller base addresses
+
+i3cBusMap hardcoded the AST2600 I3C controller platform-device names
+(1e7aX000.i3cN). On the AST2700-based OKS platform the I3C controllers
+are at 14c2X000.i3cN, so getBusFileName() built a
+/sys/bus/platform/devices/1e7a....i3cN path that never exists and threw
+for every configured bus. RootBus::init() then aborted before publishing
+any device objects, leaving the service with only its root D-Bus object
+("Only root object discovered").
+
+Map the bus numbers to the AST2700 controller addresses and add the
+seventh controller (i3c6) that the AST2700 exposes.
+
+Upstream-Status: Pending [applied downstream for the intel-ast2700
+MACHINE only; the upstream fix should select the I3C controller
+addresses per-SoC or resolve them dynamically]
+Signed-off-by: Arjun C R <arjuncr@ami.com>
+---
+ bus/root_bus.hpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/bus/root_bus.hpp b/bus/root_bus.hpp
+--- a/bus/root_bus.hpp
++++ b/bus/root_bus.hpp
+@@ -55,9 +55,10 @@
+     std::unordered_set<Path> newDevices;
+     bool isRescanRunning = false;
+ 
+     static const inline std::unordered_map<uint16_t, std::string> i3cBusMap{
+-        {0, "1e7a2000.i3c0"}, {1, "1e7a3000.i3c1"}, {2, "1e7a4000.i3c2"},
+-        {3, "1e7a5000.i3c3"}, {4, "1e7a6000.i3c4"}, {5, "1e7a7000.i3c5"}};
++        {0, "14c20000.i3c0"}, {1, "14c21000.i3c1"}, {2, "14c22000.i3c2"},
++        {3, "14c23000.i3c3"}, {4, "14c24000.i3c4"}, {5, "14c25000.i3c5"},
++        {6, "14c26000.i3c6"}};
+     std::filesystem::path getBusFileName();
+     void rescan();
+     void findDevices(boost::asio::yield_context yield);
+-- 
+2.34.1

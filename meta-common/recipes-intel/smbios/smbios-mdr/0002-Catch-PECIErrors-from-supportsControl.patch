@@ -8,6 +8,7 @@ sure any calls are inside a try/catch so potential errors are handled.
 
 Change-Id: Ib35030fa4df764a3cccd922099cd76c77823b7c4
 Signed-off-by: Jonathan Doman <jonathan.doman@intel.com>
+Upstream-Status: Backport [OneTree 1.2 OpenBMC LF and Intel sync]
 ---
  src/speed_select.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

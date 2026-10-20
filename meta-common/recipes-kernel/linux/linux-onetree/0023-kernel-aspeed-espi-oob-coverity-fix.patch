@@ -3,6 +3,8 @@ From: sujithm <sujithm@ami.com>
 Date: Wed, 17 Dec 2025 20:56:49 +0530
 Subject: [PATCH] kernel coverity fix
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/soc/aspeed/espi/aspeed-espi-oob.c | 1 +
  1 file changed, 1 insertion(+)

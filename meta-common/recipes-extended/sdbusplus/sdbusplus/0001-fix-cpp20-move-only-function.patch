@@ -7,6 +7,7 @@ fallback aliased to std::function so consumers built with -std=gnu++20
 can compile against these headers.
 
 Signed-off-by: Kirubagharan A S <kirubagharanas@ami.com>
+Upstream-Status: Backport [migrated from feature branch to main branch]
 ---
  include/sdbusplus/asio/connection.hpp | 11 +++++++++++
  1 file changed, 11 insertions(+)

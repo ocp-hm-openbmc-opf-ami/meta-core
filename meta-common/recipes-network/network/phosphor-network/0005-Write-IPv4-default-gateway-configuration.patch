@@ -10,6 +10,7 @@ The default gateway D-Bus entry was not being copied into the
 systemd-networkd configuration file after it had been updated.
 
 Signed-off-by: Johnathan Mantey <johnathanx.mantey@intel.com>
+Upstream-Status: Backport [af38fe9dd741c0b8368edb69d05e233e8a9b5223]
 ---
  src/ethernet_interface.cpp | 2 ++
  1 file changed, 2 insertions(+)

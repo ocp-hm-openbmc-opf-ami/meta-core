@@ -3,6 +3,8 @@ From: arjuncr <arjuncr@ami.com>
 Date: Mon, 11 May 2026 05:14:51 -0400
 Subject: [PATCH] Fix for Uninitialized Variable
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  afmctp-stack/mctp_impl.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

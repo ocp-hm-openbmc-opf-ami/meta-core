@@ -1,3 +1,5 @@
+Upstream-Status: Inappropriate [AMI specific change]
+
 diff --git a/drivers/jtag/jtag.c b/drivers/jtag/jtag.c
 --- a/drivers/jtag/jtag.c
 +++ b/drivers/jtag/jtag.c

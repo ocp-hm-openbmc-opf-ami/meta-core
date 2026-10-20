@@ -3,6 +3,8 @@ From: kirankumarreddyt <kirankumarreddyt@ami.com>
 Date: Tue, 17 Mar 2026 22:47:20 +0530
 Subject: [PATCH] disable logs and  fix polling error during rescan
 
+Upstream-Status: Inappropriate [AMI specific change]
+
 ---
  drivers/net/mctp/mctp-i3c-target.c |  2 --
  drivers/net/mctp/mctp-i3c.c        | 30 ++++++++++++------------------
