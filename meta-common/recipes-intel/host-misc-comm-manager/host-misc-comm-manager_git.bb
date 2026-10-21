@@ -10,7 +10,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRC_URI = "git://git@github.com/intel-bmc/firmware.bmc.openbmc.applications.host-misc-comm-manager;protocol=ssh;branch=main"
-SRCREV = "35bc4cc1943ff5eb929733c539d43f16638446b3"
+SRCREV = "8311d4bdc4328431d85dd1f4a6398a8a9dd2fd9a"
 SRCREV:bhs-features = "d906509ca6a87e60c8f7ca5ee91170e438ff8a7c"
 
 inherit cmake systemd pkgconfig
