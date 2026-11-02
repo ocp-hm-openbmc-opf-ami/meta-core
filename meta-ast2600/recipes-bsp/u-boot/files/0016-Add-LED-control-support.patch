@@ -17,30 +17,15 @@ Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
 
 
 Upstream-Status: Pending
+
 ---
- arch/arm/dts/ast2600-intel.dts     |  4 +-
  board/aspeed/ast2600_intel/intel.c | 65 +++++++++++++++++++++++++++++-
  cmd/net.c                          | 23 +++++++++--
  drivers/led/led-uclass.c           | 37 +++++++++++++++++
  drivers/led/led_gpio.c             | 62 ++++++++++++++++++++++++++++
- include/led.h                      | 42 ++++++++++++++++++-
- 6 files changed, 225 insertions(+), 8 deletions(-)
+ include/led.h                      | 38 +++++++++++++++++
+ 5 files changed, 220 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/dts/ast2600-intel.dts b/arch/arm/dts/ast2600-intel.dts
-index c7970c16a4..7cae636554 100644
---- a/arch/arm/dts/ast2600-intel.dts
-+++ b/arch/arm/dts/ast2600-intel.dts
-@@ -58,8 +58,8 @@
- 		};
- 		hb-led {
- 			label = "hb";
--			gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
--			linux,default-trigger = "heartbeat";
-+			gpios = <&gpio0 173 GPIO_ACTIVE_LOW>;
-+			default-state = "on";
- 		};
- 	};
- };
 diff --git a/board/aspeed/ast2600_intel/intel.c b/board/aspeed/ast2600_intel/intel.c
 index 4fcc1cb3ba..9fe5d6882b 100644
 --- a/board/aspeed/ast2600_intel/intel.c
@@ -390,18 +375,10 @@ index 93f6b913c6..a88efde71a 100644
  
  static const struct udevice_id led_gpio_ids[] = {
 diff --git a/include/led.h b/include/led.h
-index 7bfdddfd6f..583dbd2f8f 100644
+index 7bfdddfd6f..5f1f0139ad 100644
 --- a/include/led.h
 +++ b/include/led.h
-@@ -32,7 +32,6 @@ enum led_state_t {
- #ifdef CONFIG_LED_BLINK
- 	LEDST_BLINK,
- #endif
--
- 	LEDST_COUNT,
- };
- 
-@@ -66,6 +65,17 @@ struct led_ops {
+@@ -66,6 +66,17 @@ struct led_ops {
  	 * @return 0 if OK, -ve on error
  	 */
  	int (*set_period)(struct udevice *dev, int period_ms);
@@ -419,7 +396,7 @@ index 7bfdddfd6f..583dbd2f8f 100644
  #endif
  };
  
-@@ -115,4 +125,34 @@ int led_set_period(struct udevice *dev, int period_ms);
+@@ -115,4 +126,31 @@ int led_set_period(struct udevice *dev, int period_ms);
   */
  int led_default_state(void);
  
@@ -431,7 +408,6 @@ index 7bfdddfd6f..583dbd2f8f 100644
 + * led_blink_enable() - enable blinking for all LEDs that have the blink state
 + *
 + * This enables blinking for all LEDs that have the blink state.
-+ *
 + */
 +void led_blink_enable(void);
 +
@@ -439,7 +415,6 @@ index 7bfdddfd6f..583dbd2f8f 100644
 + * led_blink_disable() - disable blinking for all LEDs that have the blink state
 + *
 + * This disables blinking for all LEDs that have the blink state.
-+ *
 + */
 +void led_blink_disable(void);
 +
@@ -448,12 +423,11 @@ index 7bfdddfd6f..583dbd2f8f 100644
 + *
 + * This should be called on every LED_BLINK_UPDATE_TICK_MS for updating blink
 + * behavior of all LEDs that have the blink state.
-+ *
 + */
 +int led_blink_update(void);
 +#endif
 +
  #endif
 -- 
-2.17.1
+2.34.1
 

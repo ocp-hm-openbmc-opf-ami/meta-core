@@ -11,23 +11,23 @@ Upstream-Status: Inappropriate [AMI specific change]
  drivers/net/mctp/Kconfig           |   9 +
  drivers/net/mctp/Makefile          |   1 +
  drivers/net/mctp/mctp-i3c-target.c | 690 +++++++++++++++++++++++++++++
- drivers/net/mctp/mctp-i3c.c        | 204 +++++++--
- 6 files changed, 878 insertions(+), 38 deletions(-)
+ drivers/net/mctp/mctp-i3c.c        | 202 +++++++--
+ 6 files changed, 877 insertions(+), 37 deletions(-)
  create mode 100644 drivers/i3c/mctp-i3c-misc.c
  create mode 100644 drivers/net/mctp/mctp-i3c-target.c
 
 diff --git a/drivers/i3c/Makefile b/drivers/i3c/Makefile
-index f05600bcdf8d..e6786e2e3712 100644
+index 3e7f0f1fb24d..a0a8ee2302ab 100644
 --- a/drivers/i3c/Makefile
 +++ b/drivers/i3c/Makefile
 @@ -2,6 +2,7 @@
  i3c-y				:= device.o master.o
  obj-$(CONFIG_I3C)		+= i3c.o
  obj-$(CONFIG_I3CDEV)		+= i3cdev.o
-+obj-$(CONFIG_I3C)               += mctp-i3c-misc.o
++obj-$(CONFIG_I3C)		+= mctp-i3c-misc.o
  obj-$(CONFIG_I3C)		+= master/
  obj-$(CONFIG_I3C)		+= mctp/
- obj-$(CONFIG_I3C_MUX_IMX3102) 	+= i3c-mux-imx3102.o
+ obj-$(CONFIG_I3C_HUB)	+= i3c-hub.o
 diff --git a/drivers/i3c/mctp-i3c-misc.c b/drivers/i3c/mctp-i3c-misc.c
 new file mode 100644
 index 000000000000..daf733549764
@@ -46,7 +46,7 @@ index 000000000000..daf733549764
 +       return NULL;
 +}
 diff --git a/drivers/net/mctp/Kconfig b/drivers/net/mctp/Kconfig
-index a3196be75fc1..87a476688414 100644
+index 1e149651316a..e2e0f8a083dd 100644
 --- a/drivers/net/mctp/Kconfig
 +++ b/drivers/net/mctp/Kconfig
 @@ -47,6 +47,15 @@ config MCTP_TRANSPORT_I3C
@@ -54,28 +54,29 @@ index a3196be75fc1..87a476688414 100644
  	  having a "mctp-controller" devicetree property.
  
 +config MCTP_TRANSPORT_I3C_TARGET
-+      tristate "MCTP I3C target transport"
-+      depends on I3C
-+      help
-+        Provides a driver to access MCTP devices over I3C transport,
-+        from DMTF specification DSP0233.
-+        A MCTP protocol network device is created for each I3C target
-+        having a "mctp-target" devicetree property.
++	tristate "MCTP I3C target transport"
++	depends on I3C
++	help
++	  Provides a driver to access MCTP devices over I3C transport,
++	  from DMTF specification DSP0233.
++	  A MCTP protocol network device is created for each I3C target
++	  having a "mctp-target" devicetree property.
 +
  config MCTP_TRANSPORT_USB
  	tristate "MCTP USB transport"
  	depends on USB
 diff --git a/drivers/net/mctp/Makefile b/drivers/net/mctp/Makefile
-index 4acd04d7eb32..444568301540 100644
+index ded0c7b7e82e..ba3900d18364 100644
 --- a/drivers/net/mctp/Makefile
 +++ b/drivers/net/mctp/Makefile
-@@ -1,5 +1,6 @@
+@@ -1,6 +1,7 @@
  obj-$(CONFIG_MCTP_SERIAL) += mctp-serial.o
  obj-$(CONFIG_MCTP_TRANSPORT_I2C) += mctp-i2c.o
  obj-$(CONFIG_MCTP_TRANSPORT_I3C) += mctp-i3c.o
 +obj-$(CONFIG_MCTP_TRANSPORT_I3C_TARGET) += mctp-i3c-target.o
  obj-$(CONFIG_MCTP_TRANSPORT_USB) += mctp-usb.o
  obj-$(CONFIG_MCTP_TRANSPORT_PCIE_VDM) += mctp-pcie-vdm.o
+ obj-$(CONFIG_MCTP_TRANSPORT_ASPEED_MBOX) += mctp-aspeed-mbox.o
 diff --git a/drivers/net/mctp/mctp-i3c-target.c b/drivers/net/mctp/mctp-i3c-target.c
 new file mode 100644
 index 000000000000..5ecf68686132
@@ -88,7 +89,7 @@ index 000000000000..5ecf68686132
 +#include <linux/i3c/master.h>
 +#include <linux/i3c/mctp-i3c-misc.h>
 +#include <linux/if_arp.h>
-+#include <asm/unaligned.h>
++#include <linux/unaligned.h>
 +#include <net/mctp.h>
 +#include <net/mctpdevice.h>
 +
@@ -773,7 +774,7 @@ index 000000000000..5ecf68686132
 +MODULE_LICENSE("GPL");
 +MODULE_AUTHOR("Venkateshwaran R <venkateshwaranr@ami.com>");
 diff --git a/drivers/net/mctp/mctp-i3c.c b/drivers/net/mctp/mctp-i3c.c
-index ec5400378ffe..878eb78bcc89 100644
+index c678f79aa356..cfcb4d7c8137 100644
 --- a/drivers/net/mctp/mctp-i3c.c
 +++ b/drivers/net/mctp/mctp-i3c.c
 @@ -12,14 +12,22 @@
@@ -782,7 +783,7 @@ index ec5400378ffe..878eb78bcc89 100644
  #include <linux/i3c/master.h>
 +#include <linux/workqueue.h>
  #include <linux/if_arp.h>
- #include <asm/unaligned.h>
+ #include <linux/unaligned.h>
  #include <net/mctp.h>
  #include <net/mctpdevice.h>
  
@@ -825,7 +826,7 @@ index ec5400378ffe..878eb78bcc89 100644
  };
  
  /* We synthesise a mac header using the Provisioned ID.
-@@ -184,32 +196,144 @@ static void mctp_i3c_ibi_handler(struct i3c_device *i3c,
+@@ -184,32 +196,142 @@ static void mctp_i3c_ibi_handler(struct i3c_device *i3c,
  	if (WARN_ON_ONCE(!mi))
  		return;
  
@@ -865,25 +866,23 @@ index ec5400378ffe..878eb78bcc89 100644
 +		.num_slots = 10,
  	};
 +	int ret = 0;
-+if (priv->ibi_enabled)
-+	{
++
++	if (priv->ibi_enabled) {
 +		dev_warn(i3cdev_to_dev(i3cdev), "IBI Enabled already for device");
 +		return ret;
 +	}
 +	ret = i3c_device_request_ibi(i3cdev, &ibireq);
-+	if (ret)
-+	{
++	if (ret) {
 +		dev_warn(i3cdev_to_dev(i3cdev), "Failed to Request IBI, ret = %d", ret);
 +		return ret;
 +	}
 +	ret = i3c_device_enable_ibi(i3cdev);
-+	if (ret)
-+	{
++	if (ret) {
 +		dev_warn(i3cdev_to_dev(i3cdev), "Failed to Enable IBI, ret = %d", ret);
 +		i3c_device_free_ibi(i3cdev);
-+	}
-+	else
++	} else {
 +		priv->ibi_enabled = true;
++	}
 +
 +	return ret;
 +}
@@ -906,15 +905,17 @@ index ec5400378ffe..878eb78bcc89 100644
 +
 +static void mctp_i3c_poll_work(struct work_struct *work)
 +{
-+	struct mctp_i3c_device *mi = container_of(to_delayed_work(work), struct mctp_i3c_device, poll_work);
++	struct mctp_i3c_device *mi = container_of(to_delayed_work(work),
++						  struct mctp_i3c_device, poll_work);
  	struct i3c_device_info info;
 -	int rc;
++	struct i3c_device *i3cdev;
 +	int ret;
 +
 +	if (!mi || !mi->i3c)
 +		return;
 +
-+	struct i3c_device *i3cdev = mi->i3c;
++	i3cdev = mi->i3c;
 +
 +	i3c_device_get_info(i3cdev, &info);
 +	ret = i3c_device_getstatus_ccc(i3cdev, &info);
@@ -935,43 +936,41 @@ index ec5400378ffe..878eb78bcc89 100644
 +{
 +	struct i3c_device_info info;
 +	struct mctp_i3c_device *mi = i3cdev_get_drvdata(i3cdev);
-+       switch (event) {
-+       case i3c_event_prepare_for_rescan: {
-+               /* Disable IBI before rescan */
++
++	switch (event) {
++	case i3c_event_prepare_for_rescan:
++		/* Disable IBI before rescan */
 +		mctp_i3c_disable_ibi(i3cdev);
 +		cancel_delayed_work(&mi->poll_work);
 +		msleep(200);
++		break;
 +
-+               break;
-+       }
-+       case i3c_event_rescan_done: {
-+
-+               /* Wait a bit after rescan before enabling IBI */
++	case i3c_event_rescan_done:
++		/* Wait a bit after rescan before enabling IBI */
 +		msleep(500);
-+		printk(KERN_INFO "mctp-i3c: new i3c_event_rescan_done ");
-+               /* Get updated device info */
-+               i3c_device_get_info(i3cdev, &info);
-+               printk(KERN_INFO "mctp-i3c: Device PID: %016llx, Dynamic Addr: 0x%02x\n",
-+                          info.pid, info.dyn_addr);
++		dev_info(i3cdev_to_dev(i3cdev), "mctp-i3c: i3c_event_rescan_done\n");
 +
-+               /* Re-request and enable IBI after rescan */
-+               if (mctp_i3c_enable_ibi(i3cdev)) {
-+			printk(KERN_INFO "mctp-i3c: new falling aback to polling after rescan as ibi enable failed ");
++		/* Get updated device info */
++		i3c_device_get_info(i3cdev, &info);
++		dev_info(i3cdev_to_dev(i3cdev),
++			 "mctp-i3c: Device PID: %016llx, Dynamic Addr: 0x%02x\n",
++			 info.pid, info.dyn_addr);
++
++		/* Re-request and enable IBI after rescan */
++		if (mctp_i3c_enable_ibi(i3cdev)) {
++			dev_info(i3cdev_to_dev(i3cdev),
++				 "mctp-i3c: falling back to polling after rescan as ibi enable failed\n");
 +			INIT_DELAYED_WORK(&mi->poll_work, mctp_i3c_poll_work);
-+			schedule_delayed_work(
-+				&mi->poll_work,
-+				msecs_to_jiffies(POLLING_TIMEOUT_MS));
++			schedule_delayed_work(&mi->poll_work,
++					      msecs_to_jiffies(POLLING_TIMEOUT_MS));
 +		}
++		break;
 +
-+
-+               break;
-+       }
-+       default:
-+               printk(KERN_INFO "mctp-i3c: unknown event ");
-+               break;
-+       }
++	default:
++		dev_info(i3cdev_to_dev(i3cdev), "mctp-i3c: unknown event\n");
++		break;
++	}
 +}
-+
 +
 +static int mctp_i3c_setup(struct mctp_i3c_device *mi)
 +{
@@ -981,7 +980,7 @@ index ec5400378ffe..878eb78bcc89 100644
  
  	i3c_device_get_info(mi->i3c, &info);
  	mi->have_mdb = info.bcr & BIT(2);
-@@ -218,37 +342,36 @@ static int mctp_i3c_setup(struct mctp_i3c_device *mi)
+@@ -218,37 +340,38 @@ static int mctp_i3c_setup(struct mctp_i3c_device *mi)
  	mi->mrl = info.max_read_len;
  	mi->pid = info.pid;
  
@@ -995,34 +994,19 @@ index ec5400378ffe..878eb78bcc89 100644
 -			 "Failed, bus driver doesn't support In-Band Interrupts");
 -		goto err;
 -	} else if (rc < 0) {
-+	if (info.max_read_len < I3C_MCTP_MIN_TRANSFER_SIZE)
-+                ret = i3c_device_setmrl_ccc(mi->i3c, &info, cpu_to_be16(I3C_MCTP_MIN_TRANSFER_SIZE),
-+                                            I3C_MCTP_IBI_PAYLOAD_SIZE);
-+        if (ret && info.max_read_len < I3C_MCTP_MIN_TRANSFER_SIZE) {
-+                dev_info(dev, "Failed to set MRL, ret = %d, running with default: %d\n", ret,
-+                         I3C_MCTP_MIN_TRANSFER_SIZE);
-+                info.max_read_len = I3C_MCTP_MIN_TRANSFER_SIZE;
-+        }
-+        mi->mrl = info.max_read_len;
-+
-+        if (info.max_write_len < I3C_MCTP_MIN_TRANSFER_SIZE)
-+                ret = i3c_device_setmwl_ccc(mi->i3c, &info, cpu_to_be16(I3C_MCTP_MIN_TRANSFER_SIZE));
-+        if (ret && info.max_write_len < I3C_MCTP_MIN_TRANSFER_SIZE) {
-+                dev_info(dev, "Failed to set MWL, ret = %d, running with default: %d\n", ret,
-+                         I3C_MCTP_MIN_TRANSFER_SIZE);
-+                info.max_write_len = I3C_MCTP_MIN_TRANSFER_SIZE;
-+        }
-+        mi->mwl = info.max_write_len;
-+
-+	if (mctp_i3c_enable_ibi(mi->i3c)) {
- 		dev_err(i3cdev_to_dev(mi->i3c),
+-		dev_err(i3cdev_to_dev(mi->i3c),
 -			"Failed requesting IBI (%d)\n", rc);
 -		goto err;
-+			"ibi enable failed , Fallback to polling mode\n");
-+		INIT_DELAYED_WORK(&mi->poll_work, mctp_i3c_poll_work);
-+		schedule_delayed_work(&mi->poll_work,
-+				      msecs_to_jiffies(POLLING_TIMEOUT_MS));
++	if (info.max_read_len < I3C_MCTP_MIN_TRANSFER_SIZE)
++		ret = i3c_device_setmrl_ccc(mi->i3c, &info,
++					    cpu_to_be16(I3C_MCTP_MIN_TRANSFER_SIZE),
++					    I3C_MCTP_IBI_PAYLOAD_SIZE);
++	if (ret && info.max_read_len < I3C_MCTP_MIN_TRANSFER_SIZE) {
++		dev_info(dev, "Failed to set MRL, ret = %d, running with default: %d\n",
++			 ret, I3C_MCTP_MIN_TRANSFER_SIZE);
++		info.max_read_len = I3C_MCTP_MIN_TRANSFER_SIZE;
  	}
++	mi->mrl = info.max_read_len;
  
 -	rc = i3c_device_enable_ibi(mi->i3c);
 -	if (rc < 0) {
@@ -1031,16 +1015,32 @@ index ec5400378ffe..878eb78bcc89 100644
 -		 */
 -		dev_err(i3cdev_to_dev(mi->i3c), "Failed enabling IBI (%d)\n", rc);
 -		goto err_free_ibi;
--	}
-+	i3c_device_register_event_cb(mi->i3c, i3c_mctp_i3c_event_cb);
++	if (info.max_write_len < I3C_MCTP_MIN_TRANSFER_SIZE)
++		ret = i3c_device_setmwl_ccc(mi->i3c, &info,
++					    cpu_to_be16(I3C_MCTP_MIN_TRANSFER_SIZE));
++	if (ret && info.max_write_len < I3C_MCTP_MIN_TRANSFER_SIZE) {
++		dev_info(dev, "Failed to set MWL, ret = %d, running with default: %d\n",
++			 ret, I3C_MCTP_MIN_TRANSFER_SIZE);
++		info.max_write_len = I3C_MCTP_MIN_TRANSFER_SIZE;
+ 	}
++	mi->mwl = info.max_write_len;
  
- 	return 0;
--
+-	return 0;
++	if (mctp_i3c_enable_ibi(mi->i3c)) {
++		dev_err(i3cdev_to_dev(mi->i3c),
++			"ibi enable failed , Fallback to polling mode\n");
++		INIT_DELAYED_WORK(&mi->poll_work, mctp_i3c_poll_work);
++		schedule_delayed_work(&mi->poll_work,
++				      msecs_to_jiffies(POLLING_TIMEOUT_MS));
++	}
+ 
 -err_free_ibi:
 -	i3c_device_free_ibi(mi->i3c);
--
++	i3c_device_register_event_cb(mi->i3c, i3c_mctp_i3c_event_cb);
+ 
 -err:
 -	return rc;
++	return 0;
  }
  
  /* Adds a new MCTP i3c_device to a bus */

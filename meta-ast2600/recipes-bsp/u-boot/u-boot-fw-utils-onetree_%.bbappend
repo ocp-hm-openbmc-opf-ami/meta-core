@@ -1,9 +1,6 @@
 COMPATIBLE_MACHINE = "intel-ast2600"
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-# Temporary pin to fix sync build. TODO: Need to update to new u-boot.
-SRCREV = "ed55c4e7c3c4abacecaadda149656129f8b22965"
-
 # Temporary disable of SOCSEC_SIGN_ENABLE to fix sync build. TODO: Need
 # to figure out what this is and enable properly.
 SOCSEC_SIGN_ENABLE = "0"
@@ -39,7 +36,7 @@ SRC_URI:append:intel-ast2600 = " \
     file://0028-Improve-randomness-of-mac-address-generation.patch \
     file://0029-Set-UART-routing-in-lowlevel_init.patch \
     file://0030-Add-Aspeed-PWM-uclass-driver.patch \
-    file://0032-Disable-eSPI-initialization-in-u-boot-for-normal-boo.patch \
+    file://0032-Disable-eSPI-initialization-in-u-boot-for-normal-boo.patch \    
     file://0033-Disable-debug-interfaces.patch \
     file://0034-Implement-the-IPMI-commands-in-FFUJ-mode-in-u-boot.patch \
     file://0036-Disable-BMC-MMIO-Decode-on-VGA-SCU-register-bit.patch \
@@ -48,8 +45,8 @@ SRC_URI:append:intel-ast2600 = " \
     file://0044-eSPI-add-common-defines-used-by-optional-features.patch \
     file://0045-Enable-WDT2-for-causing-reset-in-Kernel-u-boot-hang.patch \
     file://0047-MMBI-initialization-in-u-boot.patch \
-    file://0048-USB-device-enumeration-failed-with-yellow-bang.patch \
     file://0049-i2c-ast-send-stop-on-transaction-failure.patch \
+    file://0050-Fix-for-compilation-issue-in-spi-driver.patch \
     "
 
 # CVE-2020-10648 vulnerability fix

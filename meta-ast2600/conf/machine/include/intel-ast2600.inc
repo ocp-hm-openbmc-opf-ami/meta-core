@@ -12,11 +12,16 @@ require conf/machine/include/intel.inc
 
 TARGET_FPU = "hard"
 
-PREFERRED_PROVIDER_u-boot-fw-utils ?= "u-boot-fw-utils-aspeed-sdk"
-
 UBOOT_DEVICETREE = "ast2600-intel"
 VIRTUAL-RUNTIME_skeleton_workbook = "${MACHINE}-config"
 
 IMAGE_CLASSES += "${@bb.utils.contains('IMAGE_FSTYPES', 'intel-pfr', 'image_types_intel_pfr', '', d)}"
 
 IMAGE_CLASSES += "${@bb.utils.contains('IMAGE_FSTYPES', 'intel-secboot', 'image_types_intel_secure_boot', '', d)}"
+
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-onetree"
+PREFERRED_PROVIDER_u-boot = "u-boot-onetree"
+PREFERRED_PROVIDER_u-boot-fw-utils = "u-boot-fw-utils-onetree"
+
+PREFERRED_VERSION_u-boot-onetree = "v2019.04+%"
+PREFERRED_VERSION_u-boot-fw-utils-onetree = "v2019.04+%"

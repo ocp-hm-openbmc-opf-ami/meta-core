@@ -14,31 +14,31 @@ Upstream-Status: Pending
  1 file changed, 8 insertions(+)
 
 diff --git a/arch/arm/mach-aspeed/ast2600/platform.S b/arch/arm/mach-aspeed/ast2600/platform.S
-index e2fcb732b6a6..4cc22e31c604 100644
+index 0335cc42d6..d3a066f0e6 100644
 --- a/arch/arm/mach-aspeed/ast2600/platform.S
 +++ b/arch/arm/mach-aspeed/ast2600/platform.S
-@@ -80,6 +80,9 @@
- #define AST_GPIO_BASE		(0x1E780000)
- #define AST_GPIOYZ_DATA_VALUE	(AST_GPIO_BASE + 0x1E0)
+@@ -85,6 +85,9 @@
+ #define GPIO_BASE		0x1e780000
+ #define GPIOYZ_DATA_VALUE	(GPIO_BASE + 0x1e0)
  
-+#define AST_LPC_BASE		0x1E789000
-+#define AST_LPC_HICRA		(AST_LPC_BASE + 0x09C)
++#define LPC_BASE		0x1e789000
++#define LPC_HICRA		(LPC_BASE + 0x09c)
 +
- /* Revision ID */
- #define REV_ID_AST2600A0	0x05000303
- #define REV_ID_AST2600A1	0x05010303
-@@ -433,6 +436,11 @@ skip_fill_wip_bit:
+ #define SEC_BASE		0x1e6f2000
+ #define SEC_VAULT_KEY_CTRL	(SEC_BASE + 0x80c)
+ 
+@@ -437,6 +440,11 @@ skip_fill_wip_bit:
  	moveq	r1, #0xff
  	str	r1, [r0]
  
 +	/* set UART routing back to default */
-+	ldr	r0, =AST_LPC_HICRA
-+	ldr	r1, =0x0
++	ldr	r0, =LPC_HICRA
++	mov	r1, #0
 +	str	r1, [r0]
 +
- 	/* relocate mailbox insn. for cpuN polling SMP go signal */
- 	adrl	r0, mailbox_insn
- 	adrl	r1, mailbox_insn_end
+ relocate_smp_mbox_start:
+ 	/* relocate SMP mailbox insn. for cpuN to poll for go signal */
+ 	adrl	r0, smp_mbox_insn
 -- 
-2.17.1
+2.34.1
 

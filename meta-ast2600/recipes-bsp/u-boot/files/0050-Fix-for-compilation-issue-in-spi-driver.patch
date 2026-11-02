@@ -1,0 +1,26 @@
+From 01c7682cf36c40f0f004f05fdce8b20efac69124 Mon Sep 17 00:00:00 2001
+From: Vijay K S <vijayks@ami.com>
+Date: Thu, 30 Jul 2026 00:35:17 +0530
+Subject: [PATCH] Fix for compilation issue in spi driver
+
+Signed-off-by: Vijay K S <vijayks@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
+---
+ drivers/spi/aspeed_spi.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/spi/aspeed_spi.c b/drivers/spi/aspeed_spi.c
+index d805c6ed73..048cdeec69 100644
+--- a/drivers/spi/aspeed_spi.c
++++ b/drivers/spi/aspeed_spi.c
+@@ -271,6 +271,7 @@ struct aspeed_spi_priv {
+ 	int new_ver;
+ 	u32 ahb_size; /* AHB Window segments size */
+ 	ulong hclk_rate; /* AHB clock rate */
++	u32 max_hz;
+ 	u8 num_cs;
+ 	bool is_fmc;
+ 	bool disable_fmc_wdt2;
+-- 
+2.34.1
+
