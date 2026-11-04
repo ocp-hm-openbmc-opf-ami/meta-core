@@ -13,80 +13,11 @@ Added support for multi-master mode enabled with
 Signed-off-by: Jan Sowinski <jan.sowinski@intel.com>
 Upstream-Status: Pending
 ---
- arch/arm/dts/ast2600-intel.dts |  8 ++++++++
- drivers/i2c/ast_i2c.c          | 19 ++++++++++++-------
- 2 files changed, 20 insertions(+), 7 deletions(-)
+ drivers/i2c/ast_i2c.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/dts/ast2600-intel.dts b/arch/arm/dts/ast2600-intel.dts
-index a76193716d..dba62fd254 100644
---- a/arch/arm/dts/ast2600-intel.dts
-+++ b/arch/arm/dts/ast2600-intel.dts
-@@ -168,6 +168,7 @@
- 
- &i2c4 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c5_default>;
-@@ -175,6 +176,7 @@
- 
- &i2c5 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c6_default>;
-@@ -182,6 +184,7 @@
- 
- &i2c6 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c7_default>;
-@@ -189,6 +192,7 @@
- 
- &i2c7 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c8_default>;
-@@ -196,6 +200,7 @@
- 
- &i2c8 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c9_default>;
-@@ -203,6 +208,7 @@
- 
- &i2c9 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c10_default>;
-@@ -210,6 +216,7 @@
- 
- &i2c12 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c13_default>;
-@@ -217,6 +224,7 @@
- 
- &i2c13 {
- 	status = "okay";
-+	multi-master;
- 
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_i2c14_default>;
 diff --git a/drivers/i2c/ast_i2c.c b/drivers/i2c/ast_i2c.c
-index bbc32d6cdb..974641220b 100644
+index 13420ade84..6380e2f020 100644
 --- a/drivers/i2c/ast_i2c.c
 +++ b/drivers/i2c/ast_i2c.c
 @@ -31,6 +31,8 @@ struct ast_i2c_priv {
@@ -109,7 +40,7 @@ index bbc32d6cdb..974641220b 100644
 -	/* Enable Master Mode. Assuming single-master */
 -	writel(I2CD_MASTER_EN
 -	       | I2CD_M_SDA_LOCK_EN
--	       | I2CD_MULTI_MASTER_DIS | I2CD_M_SCL_DRIVE_EN,
+-	       | I2CD_MULTI_MASTER_DIS,
 -	       &priv->regs->fcr);
 +	/* Enable Single-Master or Multi-Master Mode. */
 +	if (!priv->multi_master)
@@ -118,17 +49,16 @@ index bbc32d6cdb..974641220b 100644
  	/* Enable Interrupts */
  	writel(I2CD_INTR_TX_ACK
  	       | I2CD_INTR_TX_NAK
-@@ -100,6 +102,9 @@ static int ast_i2c_ofdata_to_platdata(struct udevice *dev)
+@@ -100,6 +102,8 @@ static int ast_i2c_ofdata_to_platdata(struct udevice *dev)
  		return ret;
  	}
  
 +	if (dev_read_bool(dev, "multi-master"))
 +		priv->multi_master = true;
-+
  	return 0;
  }
  
-@@ -246,8 +251,8 @@ static int ast_i2c_deblock(struct udevice *dev)
+@@ -246,8 +250,8 @@ static int ast_i2c_deblock(struct udevice *dev)
  	bool scl_high = csr & I2CD_SCL_LINE_STS;
  	int ret = 0;
  
@@ -140,5 +70,5 @@ index bbc32d6cdb..974641220b 100644
  	} else if (sda_high) {
  		/* Send stop command */
 -- 
-2.25.1
+2.34.1
 

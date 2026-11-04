@@ -23,23 +23,9 @@ expected.
 Signed-off-by: AKSHAY RAVEENDRAN K <akshay.raveendran.k@intel.com>
 Upstream-Status: Pending
 ---
- arch/arm/dts/ast2600-intel.dts          |  2 +-
  arch/arm/mach-aspeed/ast2600/platform.S | 11 +++++++----
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/dts/ast2600-intel.dts b/arch/arm/dts/ast2600-intel.dts
-index dba62fd254..b894be2a64 100644
---- a/arch/arm/dts/ast2600-intel.dts
-+++ b/arch/arm/dts/ast2600-intel.dts
-@@ -98,7 +98,7 @@
- 
- &wdt1 {
- 	u-boot,dm-pre-reloc;
--	status = "okay";
-+	status = "disabled";
- };
- 
- &wdt2 {
 diff --git a/arch/arm/mach-aspeed/ast2600/platform.S b/arch/arm/mach-aspeed/ast2600/platform.S
 index cc1d6b7a61..967c255cd5 100644
 --- a/arch/arm/mach-aspeed/ast2600/platform.S

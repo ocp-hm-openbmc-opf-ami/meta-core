@@ -27,7 +27,7 @@ UBOOT_SUFFIX ?= "bin"
 MACHINEOVERRIDES =. "openbmc:"
 
 OBMC_PHOSPHOR_IMAGE_OVERLAY = "1"
-OBMC_IMAGE_EXTRA_INSTALL:append = "u-boot-fw-utils-aspeed-sdk"
+OBMC_IMAGE_EXTRA_INSTALL:append = " ${PREFERRED_PROVIDER_u-boot-fw-utils}"
 
 IMAGE_CLASSES += "image_types image_types_phosphor_auto qemuboot"
 
@@ -51,3 +51,10 @@ QB_NETWORK_DEVICE = "-net nic,macaddr=C0:FF:EE:00:00:02,model=ftgmac100"
 QB_DEFAULT_KERNEL = "none"
 QB_RNG = ""
 QB_MEM = "1024"
+
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-onetree"
+PREFERRED_PROVIDER_u-boot = "u-boot-onetree"
+PREFERRED_PROVIDER_u-boot-fw-utils = "u-boot-fw-utils-onetree"
+ 
+PREFERRED_VERSION_u-boot-onetree = "v2019.04+%"
+PREFERRED_VERSION_u-boot-fw-utils-onetree = "v2019.04+%"

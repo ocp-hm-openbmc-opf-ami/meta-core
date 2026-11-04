@@ -12,76 +12,77 @@ in AHBC88: AHB Bus Target Disable Control Register
 
 Signed-off-by: Chen Yugang <yugang.chen@linux.intel.com>
 Upstream-Status: Pending
+
 ---
  arch/arm/mach-aspeed/ast2600/platform.S | 34 +++++++++++++++++++++++++
  1 file changed, 34 insertions(+)
 
 diff --git a/arch/arm/mach-aspeed/ast2600/platform.S b/arch/arm/mach-aspeed/ast2600/platform.S
-index 4cc22e31c6..636bccad32 100644
+index d3a066f0e6..34673ebc7a 100644
 --- a/arch/arm/mach-aspeed/ast2600/platform.S
 +++ b/arch/arm/mach-aspeed/ast2600/platform.S
-@@ -26,6 +26,9 @@
-  * +----------------------+ AST_SMP_MAILBOX_BASE
+@@ -30,6 +30,9 @@
+  * +----------------------+ SCU180
   */
  
-+#define AST_AHBC_BASE			0x1E600000
-+#define AST_AHBC_BUS_TARGET_CTRL	(AST_AHBC_BASE + 0x088)
++#define AHBC_BASE		0x1e600000
++#define AHBC_BUS_TARGET_CTRL	(AHBC_BASE + 0x088)
 +
- #define AST_SMP_MAILBOX_BASE		(0x1E6E2180)
- #define AST_SMP_MBOX_FIELD_ENTRY	(AST_SMP_MAILBOX_BASE + 0x0)
- #define AST_SMP_MBOX_FIELD_GOSIGN	(AST_SMP_MAILBOX_BASE + 0x4)
-@@ -50,6 +53,7 @@
- #define AST_SCU_HW_STRAP2		(AST_SCU_BASE + 0x510)
- #define AST_SCU_HW_STRAP2_CLR		(AST_SCU_BASE + 0x514)
- #define AST_SCU_HW_STRAP3		(AST_SCU_BASE + 0x51C)
-+#define AST_SCU_CA7_PROCESSOR_CTRL	(AST_SCU_BASE + 0x800)
- #define AST_SCU_CA7_PARITY_CHK		(AST_SCU_BASE + 0x820)
- #define AST_SCU_CA7_PARITY_CLR		(AST_SCU_BASE + 0x824)
- #define AST_SCU_MMIO_DEC_SET		(AST_SCU_BASE + 0xC24)
-@@ -83,6 +87,9 @@
- #define AST_LPC_BASE		0x1E789000
- #define AST_LPC_HICRA		(AST_LPC_BASE + 0x09C)
+ #define SCU_BASE		0x1e6e2000
+ #define SCU_PROT_KEY1		(SCU_BASE)
+ #define SCU_PROT_KEY2		(SCU_BASE + 0x010)
+@@ -55,6 +58,7 @@
+ #define SCU_HW_STRAP2		(SCU_BASE + 0x510)
+ #define SCU_HW_STRAP2_CLR	(SCU_BASE + 0x514)
+ #define SCU_HW_STRAP3		(SCU_BASE + 0x51c)
++#define SCU_CA7_PROCESSOR_CTRL	(SCU_BASE + 0x800)
+ #define SCU_CA7_PARITY_CHK	(SCU_BASE + 0x820)
+ #define SCU_CA7_PARITY_CLR	(SCU_BASE + 0x824)
+ #define SCU_MMIO_DEC_SET	(SCU_BASE + 0xc24)
+@@ -88,6 +92,9 @@
+ #define LPC_BASE		0x1e789000
+ #define LPC_HICRA		(LPC_BASE + 0x09c)
  
-+#define AST_PCIEATH_BASE		0x1E7F2000
-+#define AST_PCIEATH_SECURITY_CTRL	(AST_PCIEATH_BASE + 0x0F0)
++#define PCIEATH_BASE		0x1e7f2000
++#define PCIEATH_SECURITY_CTRL	(PCIEATH_BASE + 0x0f0)
 +
- /* Revision ID */
- #define REV_ID_AST2600A0	0x05000303
- #define REV_ID_AST2600A1	0x05010303
-@@ -436,6 +443,33 @@ skip_fill_wip_bit:
+ #define SEC_BASE		0x1e6f2000
+ #define SEC_VAULT_KEY_CTRL	(SEC_BASE + 0x80c)
+ 
+@@ -440,6 +447,33 @@ skip_fill_wip_bit:
  	moveq	r1, #0xff
  	str	r1, [r0]
  
-+	/* disable debug interfaces  */
++	/* disable debug interfaces */
 +	/* SCU_800 */
-+	ldr	r0, =AST_SCU_CA7_PROCESSOR_CTRL
++	ldr	r0, =SCU_CA7_PROCESSOR_CTRL
 +	ldr	r1, [r0]
 +	ldr	r2, =0x0c03f
 +	and	r1, r1, r2
 +	str	r1, [r0]
 +
 +	/* PCIEATH_F0 */
-+	ldr	r0, =AST_PCIEATH_SECURITY_CTRL
++	ldr	r0, =PCIEATH_SECURITY_CTRL
 +	ldr	r1, [r0]
 +	orr	r1, #0x50000
 +	str	r1, [r0]
 +
 +	/* AHBC_088 */
-+	ldr	r0, =AST_AHBC_BASE
++	ldr	r0, =AHBC_BASE
 +	movw	r1, #0x1a03
 +	movt	r1, #0xaeed
 +	str	r1, [r0]
-+	ldr	r0, =AST_AHBC_BUS_TARGET_CTRL
++	ldr	r0, =AHBC_BUS_TARGET_CTRL
 +	ldr	r1, [r0]
 +	orr	r1, #0xc0000
 +	str	r1, [r0]
-+	ldr	r0, =AST_AHBC_BASE
++	ldr	r0, =AHBC_BASE
 +	movw	r1, #0
 +	str	r1, [r0]
 +
  	/* set UART routing back to default */
- 	ldr	r0, =AST_LPC_HICRA
- 	ldr	r1, =0x0
+ 	ldr	r0, =LPC_HICRA
+ 	mov	r1, #0
 -- 
-2.27.0
+2.34.1
 

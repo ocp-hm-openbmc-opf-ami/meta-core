@@ -1,0 +1,544 @@
+From 4c6adfc3f34a034f41c73ee8d4c0003c708ccf30 Mon Sep 17 00:00:00 2001
+From: Vijay K S <vijayks@ami.com>
+Date: Wed, 29 Jul 2026 14:04:21 +0530
+Subject: [PATCH] Fix for compilation issue in kernel v6.18
+
+Signed-off-by: Vijay K S <vijayks@ami.com>
+Upstream-Status: Inappropriate [AMI specific change]
+---
+ drivers/gpio/gpio-aspeed-espi-vw.c          |  7 ++++---
+ drivers/hwmon/peci-cpupower.c               |  7 +++----
+ drivers/hwmon/peci-cputemp.c                |  1 +
+ drivers/hwmon/peci-dimmpower.c              |  7 +++----
+ drivers/hwmon/peci-dimmtemp.c               |  5 ++---
+ drivers/hwmon/peci-platformpower.c          |  7 +++----
+ drivers/hwmon/pmbus/smart.c                 |  6 +++---
+ drivers/i2c/i2c-slave-mqueue.c              |  1 -
+ drivers/mfd/intel-peci-client.c             |  1 +
+ drivers/peci-legacy/busses/peci-aspeed.c    |  6 +++---
+ drivers/peci-legacy/busses/peci-mctp.c      |  6 +++---
+ drivers/peci-legacy/busses/peci-npcm.c      |  2 +-
+ drivers/peci-legacy/peci-core.c             |  6 +++---
+ drivers/peci-legacy/peci-dev.c              |  2 +-
+ drivers/soc/aspeed/aspeed-lpc-sio.c         |  4 ++--
+ drivers/soc/aspeed/espi/aspeed-espi-mmbi.c  |  6 +++---
+ drivers/soc/aspeed/espi/aspeed-espi-oob.c   |  1 +
+ drivers/soc/aspeed/espi/aspeed-espi-slave.c |  5 +++--
+ include/dt-bindings/mmbi/protocols.h        |  1 +
+ include/linux/i3c/mctp-i3c-misc.h           | 10 ++++++++++
+ net/mctp/af_mctp.c                          |  4 ++--
+ 21 files changed, 53 insertions(+), 42 deletions(-)
+ create mode 100644 include/linux/i3c/mctp-i3c-misc.h
+
+diff --git a/drivers/gpio/gpio-aspeed-espi-vw.c b/drivers/gpio/gpio-aspeed-espi-vw.c
+index 530e632c4eae..e4439b5757e2 100644
+--- a/drivers/gpio/gpio-aspeed-espi-vw.c
++++ b/drivers/gpio/gpio-aspeed-espi-vw.c
+@@ -120,7 +120,7 @@ static int vgpio_get_value(struct gpio_chip *gc, unsigned int offset)
+ 	return ret;
+ }
+ 
+-static void vgpio_set_value(struct gpio_chip *gc, unsigned int offset, int val)
++static int vgpio_set_value(struct gpio_chip *gc, unsigned int offset, int val)
+ {
+ 	struct aspeed_espi_gpio *gpio = gpiochip_get_data(gc);
+ 	unsigned long flags;
+@@ -132,6 +132,7 @@ static void vgpio_set_value(struct gpio_chip *gc, unsigned int offset, int val)
+ 	if (!ret)
+ 		set_nth_bit(&cached_reg_val, offset, val);
+ 	spin_unlock_irqrestore(&gpio->lock, flags);
++	return ret;
+ }
+ 
+ static int vgpio_get_direction(struct gpio_chip *gc, unsigned int offset)
+@@ -295,13 +296,13 @@ static int aspeed_espi_gpio_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int aspeed_espi_gpio_remove(struct platform_device *pdev)
++static void aspeed_espi_gpio_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_espi_gpio *gpio = dev_get_drvdata(&pdev->dev);
+ 
+ 	aspeed_espi_vw_gpio_disable(gpio->map);
+ 	cancel_delayed_work_sync(&aspeed_vw_work.delayed_work);
+-	return 0;
++	return ;
+ }
+ 
+ static const struct of_device_id of_espi_match_table[] = {
+diff --git a/drivers/hwmon/peci-cpupower.c b/drivers/hwmon/peci-cpupower.c
+index 08de5115b4fd..e43182c3a724 100644
+--- a/drivers/hwmon/peci-cpupower.c
++++ b/drivers/hwmon/peci-cpupower.c
+@@ -4,6 +4,7 @@
+ #include <linux/hwmon.h>
+ #include <linux/jiffies.h>
+ #include <linux/mfd/intel-peci-client.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -878,7 +879,7 @@ static int peci_cpupower_probe(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_SMART_MODULE
+-static int find_hwmon_dev(struct device *dev, void *data)
++static int find_hwmon_dev(struct device *dev, const void *data)
+ {
+ 	if (strstr(dev_name(dev), "hwmon"))
+ 		return 1;
+@@ -886,7 +887,7 @@ static int find_hwmon_dev(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int peci_cpupower_remove(struct platform_device *pdev)
++static void peci_cpupower_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev;
+ 	int ret;
+@@ -898,8 +899,6 @@ static int peci_cpupower_remove(struct platform_device *pdev)
+ 			dev_warn(dev, "Failed to unregister peci device in SmaRT, ret %d", ret);
+ 		put_device(dev);
+ 	}
+-
+-	return 0;
+ }
+ #endif /* CONFIG_SMART_MODULE */
+ 
+diff --git a/drivers/hwmon/peci-cputemp.c b/drivers/hwmon/peci-cputemp.c
+index 23c6a639f4f9..30334fd65b28 100644
+--- a/drivers/hwmon/peci-cputemp.c
++++ b/drivers/hwmon/peci-cputemp.c
+@@ -5,6 +5,7 @@
+ #include <linux/hwmon.h>
+ #include <linux/jiffies.h>
+ #include <linux/mfd/intel-peci-client.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+diff --git a/drivers/hwmon/peci-dimmpower.c b/drivers/hwmon/peci-dimmpower.c
+index a0105bc49f14..7d30bf0ccc52 100644
+--- a/drivers/hwmon/peci-dimmpower.c
++++ b/drivers/hwmon/peci-dimmpower.c
+@@ -4,6 +4,7 @@
+ #include <linux/hwmon.h>
+ #include <linux/jiffies.h>
+ #include <linux/mfd/intel-peci-client.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -771,7 +772,7 @@ static int peci_dimmpower_probe(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_SMART_MODULE
+-static int find_hwmon_dev(struct device *dev, void *data)
++static int find_hwmon_dev(struct device *dev, const void *data)
+ {
+ 	if (strstr(dev_name(dev), "hwmon"))
+ 		return 1;
+@@ -779,7 +780,7 @@ static int find_hwmon_dev(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int peci_dimmpower_remove(struct platform_device *pdev)
++static void peci_dimmpower_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev;
+ 	int ret;
+@@ -791,8 +792,6 @@ static int peci_dimmpower_remove(struct platform_device *pdev)
+ 			dev_warn(dev, "Failed to unregister peci device in SmaRT, ret %d", ret);
+ 		put_device(dev);
+ 	}
+-
+-	return 0;
+ }
+ #endif /* CONFIG_SMART_MODULE */
+ 
+diff --git a/drivers/hwmon/peci-dimmtemp.c b/drivers/hwmon/peci-dimmtemp.c
+index 331646878998..95e387adaf53 100644
+--- a/drivers/hwmon/peci-dimmtemp.c
++++ b/drivers/hwmon/peci-dimmtemp.c
+@@ -4,6 +4,7 @@
+ #include <linux/hwmon.h>
+ #include <linux/jiffies.h>
+ #include <linux/mfd/intel-peci-client.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -737,14 +738,12 @@ static int peci_dimmtemp_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int peci_dimmtemp_remove(struct platform_device *pdev)
++static void peci_dimmtemp_remove(struct platform_device *pdev)
+ {
+ 	struct peci_dimmtemp *priv = dev_get_drvdata(&pdev->dev);
+ 
+ 	cancel_delayed_work_sync(&priv->work_handler);
+ 	destroy_workqueue(priv->work_queue);
+-
+-	return 0;
+ }
+ 
+ static const struct platform_device_id peci_dimmtemp_ids[] = {
+diff --git a/drivers/hwmon/peci-platformpower.c b/drivers/hwmon/peci-platformpower.c
+index c42fa82543ec..18c2b0567d63 100644
+--- a/drivers/hwmon/peci-platformpower.c
++++ b/drivers/hwmon/peci-platformpower.c
+@@ -4,6 +4,7 @@
+ #include <linux/hwmon.h>
+ #include <linux/jiffies.h>
+ #include <linux/mfd/intel-peci-client.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -1074,7 +1075,7 @@ static int peci_platformpower_probe(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_SMART_MODULE
+-static int find_hwmon_dev(struct device *dev, void *data)
++static int find_hwmon_dev(struct device *dev, const void *data)
+ {
+ 	if (strstr(dev_name(dev), "hwmon"))
+ 		return 1;
+@@ -1082,7 +1083,7 @@ static int find_hwmon_dev(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int peci_platformpower_remove(struct platform_device *pdev)
++static void peci_platformpower_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev;
+ 	int ret;
+@@ -1094,8 +1095,6 @@ static int peci_platformpower_remove(struct platform_device *pdev)
+ 			dev_warn(dev, "Failed to unregister peci device in SmaRT, ret %d", ret);
+ 		put_device(dev);
+ 	}
+-
+-	return 0;
+ }
+ #endif /* CONFIG_SMART_MODULE */
+ 
+diff --git a/drivers/hwmon/pmbus/smart.c b/drivers/hwmon/pmbus/smart.c
+index 16e4b0561368..5c6fcbce62ab 100644
+--- a/drivers/hwmon/pmbus/smart.c
++++ b/drivers/hwmon/pmbus/smart.c
+@@ -1415,7 +1415,7 @@ static int smart_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int smart_remove(struct platform_device *pdev)
++static void smart_remove(struct platform_device *pdev)
+ {
+ 	cancel_delayed_work(&smart_data->work);
+ 	cancel_delayed_work(&smart_data->powergood_work);
+@@ -1423,7 +1423,7 @@ static int smart_remove(struct platform_device *pdev)
+ 	destroy_workqueue(smart_data->workqueue);
+ 	status = UNINITIALIZED;
+ 
+-	return 0;
++	return ;
+ }
+ 
+ static const struct of_device_id match[] = {
+@@ -1449,4 +1449,4 @@ MODULE_AUTHOR("Agata Wiatrowska <agata.wiatrowska@intel.com>");
+ MODULE_AUTHOR("Wojciech Dembinski <wojciech.dembinski@intel.com>");
+ MODULE_DESCRIPTION("SmaRT & CLST module");
+ MODULE_VERSION("1.0");
+-MODULE_IMPORT_NS(PMBUS);
++MODULE_IMPORT_NS("PMBUS");
+diff --git a/drivers/i2c/i2c-slave-mqueue.c b/drivers/i2c/i2c-slave-mqueue.c
+index 5dfc340ea2be..6c307814f51e 100644
+--- a/drivers/i2c/i2c-slave-mqueue.c
++++ b/drivers/i2c/i2c-slave-mqueue.c
+@@ -130,7 +130,6 @@ static ssize_t i2c_slave_mqueue_bin_read(struct file *filp,
+ static int i2c_slave_mqueue_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+-	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct mq_queue *mq;
+ 	int ret, i;
+ 	void *buf;
+diff --git a/drivers/mfd/intel-peci-client.c b/drivers/mfd/intel-peci-client.c
+index 4247c949d5bb..3d06905117f5 100644
+--- a/drivers/mfd/intel-peci-client.c
++++ b/drivers/mfd/intel-peci-client.c
+@@ -7,6 +7,7 @@
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/peci-legacy.h>
++#include <linux/of.h>
+ 
+ #define CPU_ID_MODEL_MASK	GENMASK(7, 4)
+ #define CPU_ID_FAMILY_MASK	GENMASK(11, 8)
+diff --git a/drivers/peci-legacy/busses/peci-aspeed.c b/drivers/peci-legacy/busses/peci-aspeed.c
+index bdede88994ad..6677b4f36144 100644
+--- a/drivers/peci-legacy/busses/peci-aspeed.c
++++ b/drivers/peci-legacy/busses/peci-aspeed.c
+@@ -531,7 +531,7 @@ static int aspeed_peci_probe(struct platform_device *pdev)
+ 
+ 	priv->adapter->owner = THIS_MODULE;
+ 	priv->adapter->dev.of_node = of_node_get(dev_of_node(priv->dev));
+-	strlcpy(priv->adapter->name, pdev->name, sizeof(priv->adapter->name));
++	strscpy(priv->adapter->name, pdev->name, sizeof(priv->adapter->name));
+ 	//priv->adapter->xfer = aspeed_peci_xfer;
+ 	priv->adapter->xfer = aspeed_peci_wa_check_counter;
+ 	priv->adapter->set_wa_count = aspeed_peci_set_wa_counter;
+@@ -567,7 +567,7 @@ static int aspeed_peci_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int aspeed_peci_remove(struct platform_device *pdev)
++static void aspeed_peci_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_peci *priv = dev_get_drvdata(&pdev->dev);
+ 
+@@ -577,7 +577,7 @@ static int aspeed_peci_remove(struct platform_device *pdev)
+ 	reset_control_assert(priv->rst);
+ 	of_node_put(priv->adapter->dev.of_node);
+ 
+-	return 0;
++	return ;
+ }
+ 
+ static const struct of_device_id aspeed_peci_of_table[] = {
+diff --git a/drivers/peci-legacy/busses/peci-mctp.c b/drivers/peci-legacy/busses/peci-mctp.c
+index 6371faf5662b..2f2b9ef7763c 100644
+--- a/drivers/peci-legacy/busses/peci-mctp.c
++++ b/drivers/peci-legacy/busses/peci-mctp.c
+@@ -416,7 +416,7 @@ static int mctp_peci_probe(struct platform_device *pdev)
+ 	dev_set_drvdata(&pdev->dev, priv);
+ 
+ 	adapter->owner = THIS_MODULE;
+-	strlcpy(adapter->name, pdev->name, sizeof(adapter->name));
++	strscpy(adapter->name, pdev->name, sizeof(adapter->name));
+ 
+ 	adapter->xfer = mctp_peci_xfer;
+ 	adapter->peci_revision = 0x41;
+@@ -440,7 +440,7 @@ static int mctp_peci_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int mctp_peci_remove(struct platform_device *pdev)
++static void mctp_peci_remove(struct platform_device *pdev)
+ {
+ 	struct mctp_peci *priv = dev_get_drvdata(&pdev->dev);
+ 
+@@ -451,7 +451,7 @@ static int mctp_peci_remove(struct platform_device *pdev)
+ 
+ 	peci_del_adapter(priv->adapter);
+ out:
+-	return 0;
++	return ;
+ }
+ 
+ static struct platform_driver mctp_peci_driver = {
+diff --git a/drivers/peci-legacy/busses/peci-npcm.c b/drivers/peci-legacy/busses/peci-npcm.c
+index 50ea4720b38c..eca1d98467ba 100644
+--- a/drivers/peci-legacy/busses/peci-npcm.c
++++ b/drivers/peci-legacy/busses/peci-npcm.c
+@@ -97,7 +97,7 @@ static int npcm_peci_xfer_native(struct npcm_peci *priv,
+ 
+ 	regmap_write(priv->regmap, NPCM_PECI_ADDR, msg->addr);
+ 	regmap_write(priv->regmap, NPCM_PECI_RD_LENGTH,
+-		     NPCM_PECI_WR_LEN_MASK & msg->rx_len);
++	strscpy(priv->adapter->name, pdev->name, sizeof(priv->adapter->name));
+ 	regmap_write(priv->regmap, NPCM_PECI_WR_LENGTH,
+ 		     NPCM_PECI_WR_LEN_MASK & msg->tx_len);
+ 
+diff --git a/drivers/peci-legacy/peci-core.c b/drivers/peci-legacy/peci-core.c
+index 0bf52aea0e17..aeb6fd2c7209 100644
+--- a/drivers/peci-legacy/peci-core.c
++++ b/drivers/peci-legacy/peci-core.c
+@@ -1742,7 +1742,7 @@ peci_match_id(const struct peci_device_id *id, struct peci_client *client)
+ 	return NULL;
+ }
+ 
+-static int peci_device_match(struct device *dev, struct device_driver *drv)
++static int peci_device_match(struct device *dev, const struct device_driver *drv)
+ {
+ 	struct peci_client *client = peci_verify_client(dev);
+ 	struct peci_driver *driver;
+@@ -1751,7 +1751,7 @@ static int peci_device_match(struct device *dev, struct device_driver *drv)
+ 	if (peci_of_match_device(drv->of_match_table, client))
+ 		return 1;
+ 
+-	driver = to_peci_driver(drv);
++	driver = to_peci_driver((void *)drv);
+ 
+ 	/* Finally an ID match */
+ 	if (peci_match_id(driver->id_table, client))
+@@ -1916,7 +1916,7 @@ static struct peci_client *peci_new_device(struct peci_adapter *adapter,
+ 	client->adapter = adapter;
+ 	client->addr = info->addr;
+ 	client->domain_id = info->domain_id;
+-	strlcpy(client->name, info->type, sizeof(client->name));
++	strscpy(client->name, info->type, sizeof(client->name));
+ 
+ 	/* Check online status of client */
+ 	ret = peci_detect(adapter, client->addr);
+diff --git a/drivers/peci-legacy/peci-dev.c b/drivers/peci-legacy/peci-dev.c
+index 064e7d7e9e8f..1522e729805b 100644
+--- a/drivers/peci-legacy/peci-dev.c
++++ b/drivers/peci-legacy/peci-dev.c
+@@ -211,7 +211,7 @@ static const struct file_operations peci_dev_fops = {
+ 	.unlocked_ioctl	= peci_dev_ioctl,
+ 	.open		= peci_dev_open,
+ 	.release	= peci_dev_release,
+-	.llseek		= no_llseek,
++	.llseek		= noop_llseek,
+ };
+ 
+ static struct class *peci_dev_class;
+diff --git a/drivers/soc/aspeed/aspeed-lpc-sio.c b/drivers/soc/aspeed/aspeed-lpc-sio.c
+index 7215fd29ce21..74965edba81d 100644
+--- a/drivers/soc/aspeed/aspeed-lpc-sio.c
++++ b/drivers/soc/aspeed/aspeed-lpc-sio.c
+@@ -405,14 +405,14 @@ static int aspeed_lpc_sio_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int aspeed_lpc_sio_remove(struct platform_device *pdev)
++static void aspeed_lpc_sio_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_lpc_sio *lpc_sio = dev_get_drvdata(&pdev->dev);
+ 
+ 	misc_deregister(&lpc_sio->miscdev);
+ 	clk_disable_unprepare(lpc_sio->clk);
+ 
+-	return 0;
++	return ;
+ }
+ 
+ static const struct of_device_id aspeed_lpc_sio_match[] = {
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
+index 96f79189a6b8..8e631ff23963 100644
+--- a/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-mmbi.c
+@@ -436,7 +436,7 @@ static bool check_host_reset_request(struct aspeed_mmbi_channel *channel)
+ 	return 1;
+ }
+ 
+-void wake_up_device(struct aspeed_mmbi_channel *channel)
++static void wake_up_device(struct aspeed_mmbi_channel *channel)
+ {
+ 	u32 req_data_len, unread_data_len;
+ 	u8 type;
+@@ -1216,7 +1216,7 @@ static int aspeed_espi_mmbi_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int aspeed_espi_mmbi_remove(struct platform_device *pdev)
++static void aspeed_espi_mmbi_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_espi_mmbi *priv = dev_get_drvdata(&pdev->dev);
+ 	int i, j;
+@@ -1234,7 +1234,7 @@ static int aspeed_espi_mmbi_remove(struct platform_device *pdev)
+ 		dma_free_coherent(priv->dev, priv->mmbi_size, priv->dma_vaddr,
+ 				  priv->mmbi_phys_addr);
+ 
+-	return 0;
++	return ;
+ }
+ 
+ static struct platform_driver aspeed_espi_mmbi_driver = {
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-oob.c b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
+index 24be80f10360..33f556504c9d 100644
+--- a/drivers/soc/aspeed/espi/aspeed-espi-oob.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-oob.c
+@@ -4,6 +4,7 @@
+  */
+ #include <linux/aspeed-espi-ioc.h>
+ #include <linux/dma-mapping.h>
++#include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/miscdevice.h>
+ #include <linux/regmap.h>
+diff --git a/drivers/soc/aspeed/espi/aspeed-espi-slave.c b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
+index b8f92ef120ab..0d5d519a777e 100644
+--- a/drivers/soc/aspeed/espi/aspeed-espi-slave.c
++++ b/drivers/soc/aspeed/espi/aspeed-espi-slave.c
+@@ -11,6 +11,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+ #include <linux/poll.h>
+ #include <linux/regmap.h>
+@@ -533,7 +534,7 @@ static int aspeed_espi_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int aspeed_espi_remove(struct platform_device *pdev)
++static void aspeed_espi_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_espi *priv = dev_get_drvdata(&pdev->dev);
+ 
+@@ -541,7 +542,7 @@ static int aspeed_espi_remove(struct platform_device *pdev)
+ 	misc_deregister(&priv->pltrstn_miscdev);
+ 	misc_deregister(&priv->smi_miscdev);
+ 	clk_disable_unprepare(priv->clk);
+-	return 0;
++	return ;
+ }
+ 
+ static const struct aspeed_espi_model ast2600_model = {
+diff --git a/include/dt-bindings/mmbi/protocols.h b/include/dt-bindings/mmbi/protocols.h
+index c9546c8e0869..2665c36ddd25 100644
+--- a/include/dt-bindings/mmbi/protocols.h
++++ b/include/dt-bindings/mmbi/protocols.h
+@@ -10,5 +10,6 @@
+ #define MMBI_PROTOCOL_RAS_OFFLOAD	3
+ #define MMBI_PROTOCOL_MCTP		4
+ #define MMBI_PROTOCOL_VENDOR		5
++#define MMBI_PROTOCOL_NODE_MANAGER	5
+ 
+ #endif
+\ No newline at end of file
+diff --git a/include/linux/i3c/mctp-i3c-misc.h b/include/linux/i3c/mctp-i3c-misc.h
+new file mode 100644
+index 000000000000..2ec04ea7f815
+--- /dev/null
++++ b/include/linux/i3c/mctp-i3c-misc.h
+@@ -0,0 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_I3C_MCTP_I3C_MISC_H
++#define _LINUX_I3C_MCTP_I3C_MISC_H
++
++#include <linux/i3c/master.h>
++
++extern struct i3c_master_controller *(*mctp_i3c_bus_to_master_hook)(struct i3c_bus *i3cbus);
++struct i3c_master_controller *mctp_i3c_bus_to_master_call(struct i3c_bus *i3cbus);
++
++#endif /* _LINUX_I3C_MCTP_I3C_MISC_H */
+diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
+index ecb0073c5cb2..70cfcf209574 100644
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -57,7 +57,7 @@ struct mctp_pid_only {
+ static LIST_HEAD(mctp_pid_map);
+ static DEFINE_MUTEX(mctp_pid_map_lock);
+ 
+-int mctp_pid_map_remove(mctp_eid_t eid)
++static int mctp_pid_map_remove(mctp_eid_t eid)
+ {
+ 	struct mctp_pid_map_entry *entry, *tmp;
+ 	int found = 0;
+@@ -78,7 +78,7 @@ int mctp_pid_map_remove(mctp_eid_t eid)
+ 	return found ? 0 : -ENOENT;
+ }
+ 
+-int mctp_pid_map_add(mctp_eid_t eid, const void *pid)
++static int mctp_pid_map_add(mctp_eid_t eid, const void *pid)
+ {
+ 	struct mctp_pid_map_entry *entry, *tmp;
+ 	int ret;
+-- 
+2.34.1
+

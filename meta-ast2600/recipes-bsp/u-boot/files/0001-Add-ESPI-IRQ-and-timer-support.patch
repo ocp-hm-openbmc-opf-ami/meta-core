@@ -10,7 +10,7 @@ Signed-off-by: AKSHAY RAVEENDRAN K <akshay.raveendran.k@intel.com>
 Upstream-Status: Pending
 ---
  arch/arm/lib/interrupts.c                |   5 +
- arch/arm/mach-aspeed/ast2600/Makefile    |   4 +
+ arch/arm/mach-aspeed/ast2600/Makefile    |   3 +
  arch/arm/mach-aspeed/ast2600/ast-espi.c  | 292 +++++++++++++++++
  arch/arm/mach-aspeed/ast2600/ast-irq.c   | 399 +++++++++++++++++++++++
  arch/arm/mach-aspeed/ast2600/ast-irq.h   |   8 +
@@ -18,7 +18,7 @@ Upstream-Status: Pending
  cmd/Kconfig                              |   2 +-
  common/autoboot.c                        |  10 +
  configs/ast2600_openbmc_defconfig        |   2 +-
- 9 files changed, 779 insertions(+), 2 deletions(-)
+ 9 files changed, 778 insertions(+), 2 deletions(-)
  create mode 100644 arch/arm/mach-aspeed/ast2600/ast-espi.c
  create mode 100644 arch/arm/mach-aspeed/ast2600/ast-irq.c
  create mode 100644 arch/arm/mach-aspeed/ast2600/ast-irq.h
@@ -59,14 +59,12 @@ index ee775ce5d2..8c985532af 100644
  {
  	efi_restore_gd();
 diff --git a/arch/arm/mach-aspeed/ast2600/Makefile b/arch/arm/mach-aspeed/ast2600/Makefile
-index d48aabc17e..c101eb7646 100644
+index 3c02ff636d..6c0826846b 100644
 --- a/arch/arm/mach-aspeed/ast2600/Makefile
 +++ b/arch/arm/mach-aspeed/ast2600/Makefile
-@@ -1,3 +1,7 @@
+@@ -1,2 +1,5 @@
  obj-y   += platform.o board_common.o scu_info.o utils.o cache.o
  obj-$(CONFIG_SPL_BUILD) += spl.o
- obj-$(CONFIG_ASPEED_LOADERS) += spl_boot.o crypto.o aspeed_verify.o
-+
 +obj-y += ast-espi.o
 +obj-y += ast-irq.o
 +obj-y += ast-timer.o
@@ -853,10 +851,10 @@ index 0000000000..cf8c69aba5
 +	writel(tctrl, AST_TIMER_BASE + TIMER_CONTROL);
 +}
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index 1d2aa3a179..7599dd052d 100644
+index dbe21191de..07290b77cd 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1888,7 +1888,7 @@ config CMD_DIAG
+@@ -1884,7 +1884,7 @@ config CMD_DIAG
  
  config CMD_IRQ
  	bool "irq - Show information about interrupts"
@@ -904,5 +902,5 @@ index de8fca7706..701426bcc1 100644
  CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_ARCH_EARLY_INIT_R=y
 -- 
-2.25.1
+2.34.1
 

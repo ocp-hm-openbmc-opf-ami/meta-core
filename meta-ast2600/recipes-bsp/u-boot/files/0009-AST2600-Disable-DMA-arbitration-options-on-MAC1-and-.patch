@@ -13,17 +13,18 @@ So this commit disables options above.
 
 Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
 Upstream-Status: Pending
+
 ---
  arch/arm/mach-aspeed/ast2600/platform.S | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)
 
 diff --git a/arch/arm/mach-aspeed/ast2600/platform.S b/arch/arm/mach-aspeed/ast2600/platform.S
-index e479d0276d39..aaacb61a1f8b 100644
+index 9e239f9345..562bf195bd 100644
 --- a/arch/arm/mach-aspeed/ast2600/platform.S
 +++ b/arch/arm/mach-aspeed/ast2600/platform.S
-@@ -58,6 +58,12 @@
- #define AST_FMC_WDT1_CTRL_MODE	(AST_FMC_BASE + 0x060)
- #define AST_FMC_WDT2_CTRL_MODE	(AST_FMC_BASE + 0x064)
+@@ -63,6 +63,12 @@
+ #define FMC_WDT1_CTRL_MODE	(FMC_BASE + 0x060)
+ #define FMC_WDT2_CTRL_MODE	(FMC_BASE + 0x064)
  
 +#define AST_MAC1_BASE		(0x1E660000)
 +#define AST_MAC1_CTRL2		(AST_MAC1_BASE + 0x058)
@@ -31,10 +32,10 @@ index e479d0276d39..aaacb61a1f8b 100644
 +#define AST_MAC2_BASE		(0x1E680000)
 +#define AST_MAC2_CTRL2		(AST_MAC2_BASE + 0x058)
 +
- #define AST_GPIO_BASE		(0x1E780000)
- #define AST_GPIOYZ_DATA_VALUE	(AST_GPIO_BASE + 0x1E0)
+ #define GPIO_BASE		0x1e780000
+ #define GPIOYZ_DATA_VALUE	(GPIO_BASE + 0x1e0)
  
-@@ -245,6 +251,18 @@ wait_lock:
+@@ -259,6 +265,18 @@ wait_lock:
  	bne	2f
  
  1:
@@ -51,8 +52,8 @@ index e479d0276d39..aaacb61a1f8b 100644
 +	str	r1, [r0]
 +
  	/* LPC/eSPI mode selection by SW (AST2600/AST2620 A1 only) */
- 	ldr	r0, =AST_GPIOYZ_DATA_VALUE
+ 	ldr	r0, =GPIOYZ_DATA_VALUE
  	ldr	r0, [r0]
 -- 
-2.17.1
+2.34.1
 

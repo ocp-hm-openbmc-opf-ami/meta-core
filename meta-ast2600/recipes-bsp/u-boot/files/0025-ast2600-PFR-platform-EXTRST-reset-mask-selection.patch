@@ -12,40 +12,42 @@ to be reset so that Host functionality would be intact.
 Signed-off-by: Chalapathi Venkataramashetty <chalapathix.venkataramashetty@intel.com>
 Signed-off-by: Vikram Bodireddy <vikram.bodireddy@intel.com>
 Upstream-Status: Pending
+
 ---
  arch/arm/mach-aspeed/ast2600/platform.S | 12 ++++++++++++
  1 file changed, 12 insertions(+)
 
 diff --git a/arch/arm/mach-aspeed/ast2600/platform.S b/arch/arm/mach-aspeed/ast2600/platform.S
-index c65adff0d69a..3db7d993d3ca 100644
+index 38d59e9f56..0335cc42d6 100644
 --- a/arch/arm/mach-aspeed/ast2600/platform.S
 +++ b/arch/arm/mach-aspeed/ast2600/platform.S
-@@ -39,6 +39,8 @@
- #define AST_SCU_REV_ID			(AST_SCU_BASE + 0x014)
- #define AST_SCU_SYSRST_CTRL		(AST_SCU_BASE + 0x040)
- #define AST_SCU_SYSRST_CTRL_CLR		(AST_SCU_BASE + 0x044)
-+#define AST_SCU_EXTRST_SEL1		(AST_SCU_BASE + 0x060)
-+#define AST_SCU_EXTRST_SEL2		(AST_SCU_BASE + 0x070)
- #define AST_SCU_DEBUG_CTRL              (AST_SCU_BASE + 0x0C8)
- #define AST_SCU_DEBUG_CTRL2             (AST_SCU_BASE + 0x0D8)
- #define AST_SCU_HPLL_PARAM		(AST_SCU_BASE + 0x200)
-@@ -304,6 +306,16 @@ wait_lock:
+@@ -36,7 +36,9 @@
+ #define SCU_REV_ID		(SCU_BASE + 0x014)
+ #define SCU_SYSRST_CTRL		(SCU_BASE + 0x040)
+ #define SCU_SYSRST_CTRL_CLR	(SCU_BASE + 0x044)
++#define SCU_EXTRST_SEL1	(SCU_BASE + 0x060)
+ #define SCU_SYSRST_EVENT	(SCU_BASE + 0x064)
++#define SCU_EXTRST_SEL2	(SCU_BASE + 0x070)
+ #define SCU_CLK_STOP_CTRL_CLR	(SCU_BASE + 0x084)
+ #define SCU_DEBUG_CTRL		(SCU_BASE + 0x0c8)
+ #define SCU_DEBUG_CTRL2		(SCU_BASE + 0x0d8)
+@@ -301,6 +303,16 @@ wait_lock:
  	str	r1, [r0]
  
  2:
-+	/* SCU060:EXTRST1# reset mask selection */
-+	ldr 	r0, =AST_SCU_EXTRST_SEL1
-+	ldr 	r1, =0x6CF1FF1
-+	str 	r1, [r0]
++	/* SCU060: EXTRST1# reset mask selection */
++	ldr	r0, =SCU_EXTRST_SEL1
++	ldr	r1, =0x06cf1ff1
++	str	r1, [r0]
 +
-+	/* SCU070:EXTRST2# reset mask selection */
-+	ldr 	r0, =AST_SCU_EXTRST_SEL2
-+	ldr 	r1, =0x3FFFFF3
-+	str 	r1, [r0]
++	/* SCU070: EXTRST2# reset mask selection */
++	ldr	r0, =SCU_EXTRST_SEL2
++	ldr	r1, =0x03fffff3
++	str	r1, [r0]
 +
  	/* disable eSPI, LPC and PWM resets on WDT1 reset */
  	ldr	r0, =AST_WDT1_RESET_MASK2
  	ldr	r1, [r0]
 -- 
-2.17.1
+2.34.1
 
